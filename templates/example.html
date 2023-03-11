@@ -1,2 +1,30 @@
-<h1>Example Page</h1>
+{% extends "base.html" %}
+{% load static %}
 
+{% block title %}INFSCI2470 - Fair Recommender System{% endblock %}
+
+{% block load_css %}
+<style>
+    .tooltip {
+        position: absolute;
+        padding: 10px;
+        background-color: white;
+        border: 1px solid black;
+        opacity: 0;
+        pointer-events: none;
+    }
+</style>
+{% endblock %}
+
+{% block load_js %}
+    <script src="{% static "js/example.js" %}"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Page content-->
+    <div class="container">
+        EXAMPLE
+        <div id="chart"></div>
+    </div>
+{% endblock %}
