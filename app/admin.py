@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from .models import Movies, Tags, Links, Ratings, Genome_Tags, Genome_Scores
+from .models import Genre, Movie, Tag, Rating, Genome_Tag, Genome_Score
 
 # Register your models here.
-admin.site.register(Movies)
-admin.site.register(Tags)
-admin.site.register(Links)
-admin.site.register(Ratings)
-admin.site.register(Genome_Tags)
-admin.site.register(Genome_Scores)
+admin.site.register(Genre)
+admin.site.register(Movie)
+admin.site.register(Tag)
+admin.site.register(Rating)
+admin.site.register(Genome_Tag)
+admin.site.register(Genome_Score)

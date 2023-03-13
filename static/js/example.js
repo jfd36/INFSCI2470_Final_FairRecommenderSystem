@@ -1,46 +1,82 @@
 $(document).ready(function() {
-    // set the dimensions and margins of the graph
-var margin = {top: 10, right: 30, bottom: 30, left: 60},
-    width = 460 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    // Set up dimensions and margins
+    const margin = {top: 10, right: 30, bottom: 30, left: 60};
+    const width = 460 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
 
-// append the svg object to the body of the page
-var svg = d3.select("#chart")
-  .append("svg")
+    // Create scales
+    const xScale = d3.scaleLinear()
+    .range([0, width]);
+
+    const yScale = d3.scaleLinear()
+    .range([height, 0]);
+
+    // Append SVG element to the chart div
+    const svg = d3.select("#chart")
+    .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
+    .append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-//Read the data
-d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/2_TwoNum.csv", function(data) {
+    // Create a tooltip div
+    const tooltip = d3.select("#chart")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip");
 
-  // Add X axis
-  var x = d3.scaleLinear()
-    .domain([0, 4000])
-    .range([ 0, width ]);
-  svg.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x));
+    // Load data and draw chart
+    d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/2_TwoNum.csv")
+    .then(data => {
+        // Convert string data to numeric values
+        data.forEach(d => {
+        d.GrLivArea = +d.GrLivArea;
+        d.SalePrice = +d.SalePrice;
+        });
 
-  // Add Y axis
-  var y = d3.scaleLinear()
-    .domain([0, 500000])
-    .range([ height, 0]);
-  svg.append("g")
-    .call(d3.axisLeft(y));
+        // Set domains for scales based on data
+        xScale.domain([0, d3.max(data, d => d.GrLivArea)]);
+        yScale.domain([0, d3.max(data, d => d.SalePrice)]);
 
-  // Add dots
-  svg.append('g')
-    .selectAll("dot")
-    .data(data)
-    .enter()
-    .append("circle")
-      .attr("cx", function (d) { return x(d.GrLivArea); } )
-      .attr("cy", function (d) { return y(d.SalePrice); } )
-      .attr("r", 1.5)
-      .style("fill", "#69b3a2")
+        // Add axes
+        const xAxis = d3.axisBottom(xScale);
+        const yAxis = d3.axisLeft(yScale);
 
+        svg.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(xAxis);
+
+        svg.append("g")
+        .call(yAxis);
+
+        // Draw dots
+        drawDots(data, xScale, yScale);
     })
+    .catch(error => console.error(error));
+
+    function drawDots(data, xScale, yScale) {
+        svg.selectAll("circle")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("cx", d => xScale(d.GrLivArea))
+        .attr("cy", d => yScale(d.SalePrice))
+        .attr("r", 1.5)
+        .style("fill", "#69b3a2")
+        // Add mouseover event to show tooltip
+        .on("mouseover", function(event, d) {
+            tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+            tooltip.html(`GrLivArea: ${d.GrLivArea}<br>SalePrice: ${d.SalePrice}`)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 28) + "px");
+        })
+        // Add mouseout event to hide tooltip
+        .on("mouseout", function(d) {
+            tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+        });
+    }
 });

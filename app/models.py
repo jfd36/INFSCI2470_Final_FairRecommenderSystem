@@ -1,33 +1,34 @@
 from django.db import models
 
 # Create your models here.
-class Movies(models.Model):
-    movieId = models.CharField(max_length = 20)
+class Genre(models.Model):
     title = models.CharField(max_length=300)
-    genres = models.CharField(max_length=200)
 
-class Tags(models.Model):
-    userId = models.CharField(max_length = 20)
-    movieId = models.CharField(max_length = 20)
+class Movie(models.Model):
+    movieId = models.IntegerField()
+    title = models.CharField(max_length=300)
+    year = models.IntegerField()
+    imdbId = models.CharField(max_length=10)
+    tmdbId = models.CharField(max_length=10)
+    genres = models.ManyToManyField(Genre)
+
+class Tag(models.Model):
+    userId = models.IntegerField()
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     tag = models.CharField(max_length=300)
+    timestamp = models.DateTimeField(max_length=50)
+
+class Rating(models.Model):
+    userId = models.IntegerField()
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    rating = models.DecimalField(max_digits=2, decimal_places=1)
     timestamp = models.CharField(max_length=50)
 
-class Links(models.Model):
-    movieId = models.CharField(max_length = 20)
-    imdbId = models.CharField(max_length=50)
-    tmdbId = models.CharField(max_length=50)
-
-class Ratings(models.Model):
-    userId = models.CharField(max_length = 20)
-    movieId = models.CharField(max_length = 20)
-    rating = models.CharField(max_length=50)
-    timestamp = models.CharField(max_length=50)
-
-class Genome_Scores(models.Model):
-    movieId = models.CharField(max_length = 20)
-    tagId = models.CharField(max_length=20)
+class Genome_Score(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    tagId = models.IntegerField()
     relevance = models.CharField(max_length=50)
 
-class Genome_Tags(models.Model):
-    tagId = models.CharField(max_length=20)
+class Genome_Tag(models.Model):
+    tagId = models.IntegerField()
     tag = models.CharField(max_length=100)
