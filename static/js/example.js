@@ -79,4 +79,29 @@ $(document).ready(function() {
             .style("opacity", 0);
         });
     }
+
+
+    // --------------------
+    // --- AJAX Example ---
+    // --------------------
+    $("#ajax_demo").click(function() {
+        $.ajax({
+            url: "/ajax/",
+            type: "POST",
+            dataType: "json",
+            data: {
+                call: 'fetch_movie_data',
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function (json) {
+                console.log("Success", json);
+            },
+            error: function (xhr, errmsg, err) {
+                console.log("Error", xhr.status + ": " + xhr.responseText);
+            }
+        }).always(function() {
+            // Stop spinner
+            console.log("Always");
+        });
+    });
 });
