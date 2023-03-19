@@ -7,7 +7,7 @@ class Genre(models.Model):
     def __str__(self):
         return f"{self.title}"
 
-class User(models.Model):
+class Users(models.Model):
     userId = models.IntegerField()
     gender = models.CharField(max_length=1)
     age = models.IntegerField()
