@@ -23,10 +23,93 @@
 
 {% block content %}
     <!-- Page content-->
-    <div class="container">
-        EXAMPLE
-        <div id="chart"></div>
-        {% csrf_token %}
-        <button id="ajax_demo" class="btn btn-primary btn-lg">AJAX Demo</button>
+    <div class="container-fluid">
+        <div class="row py-2">
+            <div class="col-sm-4">
+                <div class="card h-100">
+                    <div class="card-header h-100">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <!-- Space for user profile picture -->
+                                <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle">
+                            </div>
+                            <div class="col-md-8">
+                                <form>
+                                    <div class="mb-3">
+                                    <label for="userID" class="form-label">User ID</label>
+                                    <input type="text" class="form-control" id="userID" placeholder="Enter user ID">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Fetch User</button>
+                                </form>
+                                <ol class="mt-3">
+                                    <li>Recent Interaction 1</li>
+                                    <li>Recent Interaction 2</li>
+                                    <li>Recent Interaction 3</li>
+                                    <li>Recent Interaction 4</li>
+                                    <li>Recent Interaction 5</li>
+                                    <li>Recent Interaction 6</li>
+                                    <li>Recent Interaction 7</li>
+                                    <li>...</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card h-100">
+                    <div class="card-header h-100">
+                        <div id="chart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card h-100">
+                    <div class="card-header h-100">
+                        <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <h3 class="text-center">CONTRASTIVE VIEW WIDGET</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="card h-100">
+                    <div class="card-header h-100">
+                        <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <h3 class="text-center">RECOMMENDED MOVIES WIDGET</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header h-100">
+                        <div id="barchart"></div>
+                        <h6>
+                            <div id="sliders">
+
+                            </div>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="card h-100">
+                    <div class="card-header h-100">
+                        {% csrf_token %}
+                        <!-- <button id="ajax_demo" class="btn btn-primary btn-lg">AJAX Demo</button> -->
+                        <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <h3 class="text-center">COUNTERFACTUAL PERSONA WIDGET</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+
+        
     </div>
 {% endblock %}
