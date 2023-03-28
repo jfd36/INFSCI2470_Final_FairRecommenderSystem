@@ -77,16 +77,6 @@ for index, row in df_movies.iterrows():
 #     obj.tag = row['tag']
 #     obj.save()
 
-print("RATINGS TIME")
-# create Rating table (note from Quinn: Had to adjust this, as for some reason it was misbehaving...?)
-df_ratings = pd.read_csv('ratings.csv', dtype=str)
-for row in df_ratings.values:
-    obj = Rating()
-    obj.userId = row[0]
-    obj.movie = Movie.objects.get(movieId=row[1])
-    obj.rating = row[2]
-    obj.timestamp = datetime.fromtimestamp(int(row[3]), timezone.utc)
-    obj.save()
 
 # create Users table
 print("USERS TIME")
@@ -99,5 +89,17 @@ for index, row in df_users.iterrows():
     obj.occupation = row['occupation']
     obj.zipCode = row['zip-code']
     obj.save()
+
+print("RATINGS TIME")
+# create Rating table (note from Quinn: Had to adjust this, as for some reason it was misbehaving...?)
+df_ratings = pd.read_csv('ratings.csv', dtype=str)
+for row in df_ratings.values:
+    obj = Rating()
+    obj.userId = Users.objects.get(userId=row[0])
+    obj.movie = Movie.objects.get(movieId=row[1])
+    obj.rating = row[2]
+    obj.timestamp = datetime.fromtimestamp(int(row[3]), timezone.utc)
+    obj.save()
+
 
 # close

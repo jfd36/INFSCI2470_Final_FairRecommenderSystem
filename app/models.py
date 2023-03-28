@@ -15,7 +15,7 @@ class Users(models.Model):
     zipCode = models.CharField(max_length=20)
 
     def __str__(self):
-        return f"User ({self.userId})"
+        return f"User ({self.userId}) {self.age} {self.gender}"
 
 class Movie(models.Model):
     movieId = models.IntegerField()
@@ -38,13 +38,13 @@ class Tag(models.Model):
         return f"User {self.userId} tagged {self.movie} as: {self.tag}"
 
 class Rating(models.Model):
-    userId = models.IntegerField()
+    userId = models.ForeignKey(Users, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     rating = models.DecimalField(max_digits=2, decimal_places=1)
     timestamp = models.CharField(max_length=50)
 
     def __str__(self):
-        return f"User {self.userId} rated {self.movie} as: {self.rating}"
+        return f"User {self.userId.userId} rated {self.movie} as: {self.rating}"
 
 class Genome_Score(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
