@@ -1,84 +1,148 @@
 $(document).ready(function() {
-    // Set up dimensions and margins
-    const margin = {top: 10, right: 30, bottom: 30, left: 60};
-    const width = 400 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
-
-    // Create scales
-    const xScale = d3.scaleLinear()
-    .range([0, width]);
-
-    const yScale = d3.scaleLinear()
-    .range([height, 0]);
-
-    // Append SVG element to the chart div
-    const svg = d3.select("#chart")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-    // Create a tooltip div
-    const tooltip = d3.select("#chart")
-    .append("div")
-    .style("opacity", 0)
-    .attr("class", "tooltip");
-
-    // Load data and draw chart
-    d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/2_TwoNum.csv")
-    .then(data => {
-        // Convert string data to numeric values
-        data.forEach(d => {
-        d.GrLivArea = +d.GrLivArea;
-        d.SalePrice = +d.SalePrice;
+     // Define the sliders
+     $(".slider").each(function() {
+        // read initial values from markup and remove that
+        var value = parseInt($(this).text(), 10);
+        $(this).empty().slider({
+          value: value,
+          range: "min",
+          animate: true,
+          orientation: "horizontal"
         });
+    });
 
-        // Set domains for scales based on data
-        xScale.domain([0, d3.max(data, d => d.GrLivArea)]);
-        yScale.domain([0, d3.max(data, d => d.SalePrice)]);
+    // Zoomable, Pannable, Hoverable Scatter Plot
+    // Set height/width of plot
+    height = 405;
+    width = 500;
+    k = height / width
 
-        // Add axes
-        const xAxis = d3.axisBottom(xScale);
-        const yAxis = d3.axisLeft(yScale);
+    // 900 random points
+    const data = (() => {
+        const random = d3.randomNormal(0, 0.2);
+        const sqrt3 = Math.sqrt(3);
+        return [].concat(
+          Array.from({ length: 300 }, () => [random() + sqrt3, random() + 1, 0]),
+          Array.from({ length: 300 }, () => [random() - sqrt3, random() + 1, 1]),
+          Array.from({ length: 300 }, () => [random(), random() - 1, 2]),
+        //   'TEST DATA'
+        );
+      })();
 
-        svg.append("g")
-        .attr("transform", `translate(0, ${height})`)
-        .call(xAxis);
+    grid = (g, x, y) => g
+    .attr("stroke", "currentColor")
+    .attr("stroke-opacity", 0.1)
+    .call(g => g
+      .selectAll(".x")
+      .data(x.ticks(12))
+      .join(
+        enter => enter.append("line").attr("class", "x").attr("y2", height),
+        update => update,
+        exit => exit.remove()
+      )
+        .attr("x1", d => 0.5 + x(d))
+        .attr("x2", d => 0.5 + x(d)))
+    .call(g => g
+      .selectAll(".y")
+      .data(y.ticks(12 * k))
+      .join(
+        enter => enter.append("line").attr("class", "y").attr("x2", width),
+        update => update,
+        exit => exit.remove()
+      )
+        .attr("y1", d => 0.5 + y(d))
+        .attr("y2", d => 0.5 + y(d)));
+    
+    yAxis = (g, y) => g
+    .call(d3.axisRight(y).ticks(12 * k))
+    .call(g => g.select(".domain").attr("display", "none"))
 
-        svg.append("g")
-        .call(yAxis);
+    xAxis = (g, x) => g
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisTop(x).ticks(12))
+    .call(g => g.select(".domain").attr("display", "none"))
 
-        // Draw dots
-        drawDots(data, xScale, yScale);
-    })
-    .catch(error => console.error(error));
+    z = d3.scaleOrdinal()
+    .domain(data.map(d => d[2]))
+    .range(d3.schemeCategory10)
 
-    function drawDots(data, xScale, yScale) {
-        svg.selectAll("circle")
-        .data(data)
-        .enter()
-        .append("circle")
-        .attr("cx", d => xScale(d.GrLivArea))
-        .attr("cy", d => yScale(d.SalePrice))
-        .attr("r", 1.5)
-        .style("fill", "#69b3a2")
-        // Add mouseover event to show tooltip
-        .on("mouseover", function(event, d) {
+    y = d3.scaleLinear()
+    .domain([-4.5 * k, 4.5 * k])
+    .range([height, 0])
+
+    x = d3.scaleLinear()
+    .domain([-4.5, 4.5])
+    .range([0, width])
+ 
+      const chart = () => {
+        const zoom = d3.zoom()
+          .scaleExtent([0.5, 32])
+          .on("zoom", zoomed);
+      
+        const svg = d3.create("svg")
+          .attr("viewBox", [0, 0, width, height]);
+      
+        const gGrid = svg.append("g");
+
+        // Create a tooltip div
+        const tooltip = d3.select("#chart")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip");
+      
+        const gDot = svg.append("g")
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            
+      
+        gDot.selectAll("path")
+          .data(data)
+          .join("path")
+          .on("mouseover", function(event, d) {
             tooltip.transition()
-            .duration(200)
-            .style("opacity", .9);
-            tooltip.html(`UserID: ${d.GrLivArea}<br>Blah blah: ${d.SalePrice}`)
-            .style("left", (event.pageX - 635) + "px")
-            .style("top", (event.pageY - 50) + "px");
+                .duration(200)
+                .style("opacity", .9);
+            tooltip.html(`User ${d[2]}: (${d[0].toFixed(2)}, ${d[1].toFixed(2)})`)
+                .style("left", (event.x) + "px")
+                .style("top", (event.y - 300) + "px");
         })
-        // Add mouseout event to hide tooltip
         .on("mouseout", function(d) {
             tooltip.transition()
-            .duration(500)
-            .style("opacity", 0);
+                .duration(500)
+                .style("opacity", 0);
+        })
+          .attr("d", d => `M${x(d[0])},${y(d[1])}h0`)
+          .attr("stroke", d => z(d[2]));
+      
+        const gx = svg.append("g");
+      
+        const gy = svg.append("g");
+      
+        svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
+      
+        function zoomed({transform}) {
+          const zx = transform.rescaleX(x).interpolate(d3.interpolateRound);
+          const zy = transform.rescaleY(y).interpolate(d3.interpolateRound);
+          gDot.attr("transform", transform).attr("stroke-width", 5 / transform.k);
+          gx.call(xAxis, zx);
+          gy.call(yAxis, zy);
+          gGrid.call(grid, zx, zy);
+        }
+      
+        return Object.assign(svg.node(), {
+          reset() {
+            svg.transition()
+              .duration(750)
+              .call(zoom.transform, d3.zoomIdentity);
+          }
         });
-    }
+      };
+
+    const chartDiv = d3.select("#chart");
+    const chartSvg = chartDiv.append(() => chart());
+
+    // reset, chart.reset()
+
 
     function exampleFunction(data) {
         $.each(data.movies, function() {
@@ -194,22 +258,4 @@ $(document).ready(function() {
         ["Thriller", 70]
     ];
     genreBarchart(exampleUserData);
-    
-
-    // Define the sliders
-    for (var i = 1; i < exampleUserData.length; i++) {
-        var label = exampleUserData[i][0];
-        var value = exampleUserData[i][2];
-        var slider = '<div><label for="' + label + '">' + label + '</label><div class="slider" id="' + label + '"></div></div>';
-        $('#sliders').append(slider);
-
-        $('#' + label).slider({
-            create: function() {
-            //   handle.text( $( this ).slider( "value" ) );
-            },
-            slide: function( event, ui ) {
-            //   handle.text( ui.value );
-            }
-          });
-    }
 });

@@ -4,19 +4,340 @@
 {% block title %}INFSCI2470 - Fair Recommender System{% endblock %}
 
 {% block load_css %}
+<style>
+    .tooltip {
+        position: absolute;
+        padding: 10px;
+        background-color: white;
+        border: 1px solid black;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .ui-slider-range {
+        background-color: #198754;
+    }
+</style>
 {% endblock %}
 
 {% block load_js %}
     <script src="{% static "js/example.js" %}"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
 {% endblock %}
 
 {% block content %}
     <!-- Page content-->
-    <div class="container">
-        <div class="text-center mt-5">
-            <h1>A Bootstrap 5 Starter Template</h1>
-            <p class="lead">A complete project boilerplate built with Bootstrap</p>
-            <p>Bootstrap v5.1.3</p>
+    <div class="container-fluid">
+        <div class="row py-2">
+            <div class="col-sm-7 gx-0">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card h-100">
+                            <div class="card-header h-100">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <!-- Space for user profile picture -->
+                                        <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <form>
+                                            <div class="mb-2">
+                                                <label for="userID" class="form-label fw-bold fs-5">User Profile</label>
+                                                <input type="text" class="form-control" id="userID" placeholder="Enter ID between 1 - 6040">
+                                            </div>
+                                            <button type="submit" class="btn btn-success float-end">Fetch User</button>
+                                        </form>
+                                        <div>
+                                            <p class="fw-bold">
+                                                User: 4
+                                                <br>Gender: F
+                                                <br>Age Range: 45
+                                                <br>Occupation: Nurse
+                                                <br>Location: 15213
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="form-label fw-bold fs-5">Recent Interactions</p>
+                                        <ol class="mt-3">
+                                            <li>Recent Interaction 1</li>
+                                            <li>Recent Interaction 2</li>
+                                            <li>Recent Interaction 3</li>
+                                            <li>Recent Interaction 4</li>
+                                            <li>Recent Interaction 5</li>
+                                            <li>Recent Interaction 6</li>
+                                            <li>...</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row py-2">
+                    <div class="col-sm-12">
+                        <div class="card h-100">
+                            <div class="card-header h-100">
+                                <div class="row"> 
+                                    <div class="col-sm-8">
+                                        <h3>User Cluster View</h3>
+                                        <div id="chart"></div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <form class="text-center">
+                                            <div class="mb-2">
+                                                <label for="age" class="form-label fw-bold fs-5">Age:</label>
+                                                <br>
+                                                <select id="age" name="age">
+                                                    <option value="18-24">18-24</option>
+                                                    <option value="25-34">25-34</option>
+                                                    <option value="35-44">35-44</option>
+                                                    <option value="45-54">45-54</option>
+                                                    <option value="55+">55+</option>
+                                                </select>
+                                                <br><br>
+                                                <label for="gender" class="form-label fw-bold fs-5">Gender:</label>
+                                                <br>
+                                                <select id="gender" name="gender">
+                                                    <option value="male">Male</option>
+                                                    <option value="female">Female</option>
+                                                    <option value="non-binary">Non-binary</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                                <br><br>
+                                                <label for="location" class="form-label fw-bold fs-5">Location:</label>
+                                                <br>
+                                                <select id="location" name="location">
+                                                    <option value="north-america">North America</option>
+                                                    <option value="south-america">South America</option>
+                                                    <option value="europe">Europe</option>
+                                                    <option value="asia">Asia</option>
+                                                    <option value="africa">Africa</option>
+                                                    <option value="australia">Australia</option>
+                                                </select>
+                                                <br><br>
+                                                <label for="occupation" class="form-label fw-bold fs-5">Occupation:</label>
+                                                <br>
+                                                <select id="occupation" name="occupation">
+                                                    <option value="student">Student</option>
+                                                    <option value="engineer">Engineer</option>
+                                                    <option value="teacher">Teacher</option>
+                                                    <option value="doctor">Doctor</option>
+                                                    <option value="entrepreneur">Entrepreneur</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                                <br><br>
+                                                <label for="top-genre" class="form-label fw-bold fs-5">Top Genre:</label>
+                                                <br>
+                                                <select id="top-genre" name="top-genre">
+                                                    <option value="pop">Pop</option>
+                                                    <option value="rock">Rock</option>
+                                                    <option value="hip-hop">Hip-Hop</option>
+                                                    <option value="country">Country</option>
+                                                    <option value="electronic">Electronic</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+                                            <br><br>
+                                            <button type="submit" class="btn btn-success">Search</button>
+                                        </form>
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="row pb-2">
+                    <div class="col-sm-12">
+                        <div class="card h-100">
+                            <div class="card-header h-100">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <!-- <div id="barchart"></div> -->
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Romance</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">8</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Sci-Fi</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">28</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Adventure</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">38</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Comedy</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">78</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Animation</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">88</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Drama</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">100</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Thriller</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">88</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">War</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">68</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Children</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">28</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Crime</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">18</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Horror</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">08</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Film-Noir</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">0</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Mystery</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">25</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Action</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">50</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Musical</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">75</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Western</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">88</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">IMAX</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">75</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Documentary</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">40</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="m-1 fw-bold fw-bold">Fantasy</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="slider my-2">30</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-center mt-2">
+                                            <button type="submit" class="btn btn-success me-4">Update</button>
+                                            <button type="submit" class="btn btn-success">Reset</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 text-center">
+                                            <h3>Top 10 Movies</h3>
+                                            <br>
+                                            <img src="https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg" class="img-fluid w-25">
+                                            <p class="fw-bold">Titanic (1997)</p>
+                                            <br>
+                                            <img src="https://image.tmdb.org/t/p/w500/nnYHvA2tSVdtr8KxIy8F6YndCOy.jpg" class="img-fluid w-25">
+                                            <p class="fw-bold">Hellraiser (1987)</p>
+                                            <br>
+                                            <img src="https://image.tmdb.org/t/p/w500/tSadXiI88soRyS4mcSr7PsKWaqN.jpg" class="img-fluid w-25">
+                                            <p class="fw-bold">Barney's Great<br>Adventure (1998)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card h-100">
+                            <div class="card-header h-100">
+                                {% csrf_token %}
+                                <!-- <button id="ajax_demo" class="btn btn-primary btn-lg">AJAX Demo</button> -->
+                                <h3 class="text-center">Counterfactual Persona Explorer</h3>
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <!-- Space for user profile picture -->
+                                        <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle w-75">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div>
+                                            <p class="fw-bold">
+                                                User: 34
+                                                <br>Gender: F
+                                                <br>Age Range: 23
+                                                <br>Occupation: Programmer
+                                                <br>Location: 15213
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <!-- Space for user profile picture -->
+                                        <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle w-75">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div>
+                                            <p class="fw-bold">
+                                                User: 1302
+                                                <br>Gender: M
+                                                <br>Age Range: 76
+                                                <br>Occupation: Conman
+                                                <br>Location: 10001
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>    
         </div>
-    </div>
+    </div>     
 {% endblock %}
