@@ -5,6 +5,7 @@ from app.models import *
 
 
 df_movies = pd.read_csv('movies.dat', sep = '::', engine = 'python', encoding = 'latin-1', header = None)
+df_posters = pd.read_csv('posters.csv', engine = 'python', encoding = 'latin-1', header = None)
 
 # create Genre table
 #df_movies = pd.read_csv('movies.csv')
@@ -30,6 +31,10 @@ for index, row in df_movies.iterrows():
         title = re.sub(r'\s*\(\d{4}\)$', '', row[1])
     obj.title = title
     obj.year = year
+    try:
+        obj.poster = df_posters.loc[df_posters[0] == row[0], 1].iloc[0]
+    except IndexError:
+        obj.poster = "n/a"
     obj.save()
 
 print("GENRES TO MOVIES TIME")
@@ -38,49 +43,10 @@ for index, row in df_movies.iterrows():
     for genre in row[2].split("|"):
         obj.genres.add(Genre.objects.get(title=genre))
 
-# # add links to Movie table (connects movies with their IMDB and TMDB links)
-# print("LINKS TIME")
-# df_links = pd.read_csv('links.csv', dtype=str)
-# for index, row in df_links.iterrows():
-#     obj = Movie.objects.get(movieId=row['movieId'])
-#     obj.imdbId = row['imdbId']
-#     obj.tmdbId = row['tmdbId']
-#     obj.save()
-
-# # create Tag table
-# print("TAGS TIME")
-# df_tags = pd.read_csv('tags.csv')
-# for index, row in df_tags.iterrows():
-#     obj = Tag()
-#     obj.movie = Movie.objects.get(movieId=row['movieId'])
-#     obj.userId = row['userId']
-#     obj.tag = row['tag']
-#     obj.timestamp = datetime.fromtimestamp(row['timestamp'], timezone.utc)
-#     obj.save()
-
-# print("GENOME SCORES TIME")
-# # create Genome_Score table
-# df_genome_scores = pd.read_csv('genome-scores.csv')
-# for index, row in df_genome_scores.iterrows():
-#     obj = Genome_Score()
-#     obj.movie = Movie.objects.get(movieId=row['movieId'])
-#     obj.tagId = row['tagId']
-#     obj.relevance = row['relevance']
-#     obj.save()
-
-# print("GENOME TAGS TIME")
-# # create Genome_Tag table
-# df_genome_tags = pd.read_csv('genome-tags.csv')
-# for index, row in df_genome_tags.iterrows():
-#     obj = Genome_Tag()
-#     obj.tagId = row['tagId']
-#     obj.tag = row['tag']
-#     obj.save()
-
-
 # create Users table
 print("USERS TIME")
 df_users = pd.read_csv('users.csv')
+df_ngr = pd.read_csv('normalized_genre_ratings.csv')
 for index, row in df_users.iterrows():
     obj = Users()
     obj.userId = row['userId']
@@ -88,6 +54,7 @@ for index, row in df_users.iterrows():
     obj.age = row['age']
     obj.occupation = row['occupation']
     obj.zipCode = row['zip-code']
+    obj.genreRatings = "|".join(df_ngr.loc[df_ngr['userId'] == row['userId'], 'Normalized Rating'].mul(100).astype(int).astype(str))
     obj.save()
 
 print("RATINGS TIME")

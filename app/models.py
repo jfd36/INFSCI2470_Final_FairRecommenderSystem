@@ -13,6 +13,7 @@ class Users(models.Model):
     age = models.IntegerField()
     occupation = models.IntegerField()
     zipCode = models.CharField(max_length=20)
+    genreRatings = models.CharField(max_length=300)
 
     def __str__(self):
         return f"User ({self.userId}) {self.age} {self.gender}"
@@ -24,6 +25,7 @@ class Movie(models.Model):
     imdbId = models.CharField(max_length=10)
     tmdbId = models.CharField(max_length=10)
     genres = models.ManyToManyField(Genre)
+    poster = models.CharField(max_length=300)
 
     def __str__(self):
         return f"{self.title} ({self.year})"
