@@ -30,9 +30,26 @@ def fetch_movie_data(request):
         content_type='application/json'
     )
 
+def fetch_user_info(request):
+    userId = request.POST.get('userId')
+    user = Users.objects.get(userId=userId)
+    data = {
+        'gender': user.gender,
+        'age': user.age,
+        'occupation': user.occupation,
+        'zipCode': user.zipCode,
+        'genreRatings': user.genreRatings
+    }
+
+    return HttpResponse(
+        json.dumps(data),
+        content_type='application/json'
+    )
+
+
 # Helper objects and functions for AJAX functionality
 switch = {
-    'fetch_movie_data': {'call': fetch_movie_data},
+    'fetch_user_info': {'call': fetch_user_info},
 }
 
 def ajax(request):
