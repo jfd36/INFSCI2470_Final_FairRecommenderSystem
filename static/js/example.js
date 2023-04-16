@@ -174,6 +174,36 @@ $(document).ready(function() {
         });
     });
 
+    // --------------------
+    // --- AJAX Example ---
+    // --------------------
+    $("#fetchUser").click(function(e) {
+      e.preventDefault();
+      $.ajax({
+          url: "/ajax/",
+          type: "POST",
+          dataType: "json",
+          data: {
+              call: 'fetch_user_info',
+              userId: $('#userId').val(),
+              extra: 0,
+              csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+          },
+          success: function (json) {
+              console.log("Success", json);
+              $('#genderLabel').text(json.gender)
+          },
+          error: function (xhr, errmsg, err) {
+              console.log("Error", xhr.status + ": " + xhr.responseText);
+          }
+      }).always(function() {
+          // Stop spinner
+          console.log("Always");
+      });
+  });
+
+    
+
 
     // Interactive bar chart prototype
     function genreBarchart(data) {
