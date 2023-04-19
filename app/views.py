@@ -1,4 +1,4 @@
-import json
+import csv, json
 from .models import *
 
 from django.views.generic import TemplateView
@@ -16,6 +16,21 @@ class index(TemplateView):
 class example(TemplateView):
     template_name = "example.html"
 
+def cluster_csv(request):
+    data = {}
+
+    with open('clustering_with_pickle_coordinates_v2.csv', encoding='utf-8') as f:
+        csvReader = csv.DictReader(f)
+
+        for row in csvReader:
+            key = row['user_id']
+            data[key] = row
+        
+        return HttpResponse(
+            json.dumps(data),
+            content_type='application/json'
+        )
+
 # Create your AJAX functions here.
 def fetch_movie_data(request):
     study = request.POST.get('study')
@@ -32,6 +47,7 @@ def fetch_movie_data(request):
 
 # Helper objects and functions for AJAX functionality
 switch = {
+    'cluster_csv': {'call': cluster_csv},
     'fetch_movie_data': {'call': fetch_movie_data},
 }
 
