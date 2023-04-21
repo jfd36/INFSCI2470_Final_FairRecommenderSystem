@@ -1,4 +1,4 @@
-import json
+import csv, json
 from .models import *
 import random
 
@@ -17,19 +17,20 @@ class index(TemplateView):
 class example(TemplateView):
     template_name = "example.html"
 
-# Create your AJAX functions here.
-def fetch_movie_data(request):
-    study = request.POST.get('study')
-    data = {"movies": {}}
+def cluster_csv(request):
+    data = {}
 
-    movies = Movie.objects.all()
-    for movie in movies:
-        data["movies"][movie.title] = [movie.movieId, movie.title, movie.year, movie.imdbId, movie.tmdbId]
+    with open('clustering_with_pickle_coordinates_v2.csv', encoding='utf-8') as f:
+        csvReader = csv.DictReader(f)
 
-    return HttpResponse(
-        json.dumps(data),
-        content_type='application/json'
-    )
+        for row in csvReader:
+            key = row['user_id']
+            data[key] = row
+        
+        return HttpResponse(
+            json.dumps(data),
+            content_type='application/json'
+        )
 
 def fetch_user_info(request):
     userId = request.POST.get('userId')
@@ -42,18 +43,6 @@ def fetch_user_info(request):
         'genreRatings': user.genreRatings
     }
 
-    return HttpResponse(
-        json.dumps(data),
-        content_type='application/json'
-    )
-
-def get_genre_ratings(request):
-    userId = request.POST.get('userId')
-    try:
-        user = Users.objects.get(id=userId)
-        data = user.genreRatings.split("|")
-    except Users.DoesNotExist:
-        data = []
     return HttpResponse(
         json.dumps(data),
         content_type='application/json'
@@ -73,12 +62,11 @@ def get_movies(request):
         content_type='application/json'
     )
 
-
 # Helper objects and functions for AJAX functionality
 switch = {
     'fetch_user_info': {'call': fetch_user_info},
-    'get_genre_ratings': {'call': get_genre_ratings},
-    'get_movies': {'call': get_movies}
+    'get_movies': {'call': get_movies},
+    'cluster_csv': {'call': cluster_csv}
 }
 
 def ajax(request):

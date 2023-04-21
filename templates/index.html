@@ -105,15 +105,15 @@
                                                 <label for="userId" class="form-label fw-bold fs-5">User Profile</label>
                                                 <input type="text" class="form-control" id="userId" placeholder="Enter ID between 1 - 6040">
                                             </div>
-                                            <button type="submit" class="btn btn-success float-end" id = "fetchUser">Fetch User</button>
+                                            <button class="btn btn-success float-end" id="fetchUser">Fetch User</button>
                                         </form>
                                         <div>
                                             <p class="fw-bold">
-                                                User: 4
-                                                <br>Gender: F
-                                                <br>Age Range: 45
-                                                <br>Occupation: Nurse
-                                                <br>Location: 15213
+                                                User: <span id="userIdLabel"></span>
+                                                <br>Gender: <span id="genderLabel"></span>
+                                                <br>Age Range: <span id="ageLabel"></span>
+                                                <br>Occupation: <span id="occupationLabel"></span>
+                                                <br>Location: <span id="locationLabel"></span>
                                             </p>
                                         </div>
                                     </div>
@@ -190,8 +190,8 @@
                                                 <label for="top-genre" class="form-label fw-bold fs-5">Top Genre:</label>
                                                 <br>
                                                 <select id="top-genre" name="top-genre">
-                                                    <option value="pop">Pop</option>
-                                                    <option value="rock">Rock</option>
+                                                    <option value="pop">Romance</option>
+                                                    <option value="rock">Sci-Fi</option>
                                                     <option value="hip-hop">Hip-Hop</option>
                                                     <option value="country">Country</option>
                                                     <option value="electronic">Electronic</option>
