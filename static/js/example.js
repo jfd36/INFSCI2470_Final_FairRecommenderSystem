@@ -11,6 +11,36 @@ $(document).ready(function() {
         });
     });
 
+    // Fetch User Info
+    $("#fetchUser").click(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: "/ajax/",
+            type: "POST",
+            dataType: "json",
+            data: {
+                call: 'fetch_user_info',
+                userId: $('#userId').val(),
+                extra: 0,
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function (json) {
+                console.log("Success", json);
+                $('#userIdLabel').text($('#userId').val());
+                $('#genderLabel').text(json.gender);
+                $('#ageLabel').text(json.age);
+                $('#occupationLabel').text(json.occupation);
+                $('#locationLabel').text(json.zipCode);
+            },
+            error: function (xhr, errmsg, err) {
+                console.log("Error", xhr.status + ": " + xhr.responseText);
+            }
+        }).always(function() {
+            // Stop spinner
+            console.log("Always");
+        });
+    });
+
     // Get the User Explorer Data
     var cluster_data = [];
     $.ajax({
@@ -41,7 +71,6 @@ $(document).ready(function() {
         width = 500;
         k = height / width
 
-        // 900 random points
         const data = cluster_data;
         console.log(data)
 
