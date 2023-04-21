@@ -14,9 +14,67 @@
         pointer-events: none;
     }
 
-    .ui-slider-range {
-        background-color: #198754;
+    .ui-slider .ui-slider-range {
+        background: #198754;
     }
+    .slider .ui-slider-handle {
+        background-color: #fff;
+        border: 1px solid #ccc;
+    }
+
+    /* Style the slider handle on hover and active states */
+    .slider .ui-slider-handle:hover, .slider .ui-slider-handle:active {
+        background-color: #198754;
+        border-color: #198754;
+    }
+
+    .slider.ui-slider-horizontal {
+        width: 300%;
+        border: none;
+        background: #f9fff9;
+    }
+
+    .m-1 {
+        white-space: nowrap;
+    }
+
+    .movie img {
+        width: 115px;
+        height: auto;
+    }
+    .movie h2 {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .ui-slider-handle:active{
+        border: none;
+        border-radius: 10%;
+        color: #fff;
+        font-size: 12px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        width: 30px;
+    }
+
+    .floating-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        /* You can customize the button appearance, e.g., padding, background color, etc. */
+        padding: 10px 20px;
+        background-color: #007BFF;
+        color: #FFF;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .floating-button:hover {
+    background-color: #0056b3;
+    }
+
 </style>
 {% endblock %}
 
@@ -26,7 +84,8 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Page content-->
+    <img src = "{% static 'img/no-image-png-2.png' %}" id = "placeholderImage" style = "display: none">
+    <!-- Page content-->   
     <div class="container-fluid">
         <div class="row py-2">
             <div class="col-sm-7 gx-0">
@@ -34,6 +93,7 @@
                     <div class="col-sm-12">
                         <div class="card h-100">
                             <div class="card-header h-100">
+                                <button class="floating-button">?</button>
                                 <div class="row">
                                     <div class="col-md-4">
                                         <!-- Space for user profile picture -->
@@ -42,15 +102,15 @@
                                     <div class="col-md-4">
                                         <form>
                                             <div class="mb-2">
-                                                <label for="userID" class="form-label fw-bold fs-5">User Profile</label>
+                                                <label for="userId" class="form-label fw-bold fs-5">User Profile</label>
                                                 <input type="text" class="form-control" id="userId" placeholder="Enter ID between 1 - 6040">
                                             </div>
-                                            <button class="btn btn-success float-end" id="fetchUser">Fetch User</button>
+                                            <button type="submit" class="btn btn-success float-end" id = "fetchUser">Fetch User</button>
                                         </form>
                                         <div>
                                             <p class="fw-bold">
                                                 User: 4
-                                                <br>Gender: <span id="genderLabel"></span>
+                                                <br>Gender: F
                                                 <br>Age Range: 45
                                                 <br>Occupation: Nurse
                                                 <br>Location: 15213
@@ -153,147 +213,143 @@
                     <div class="col-sm-12">
                         <div class="card h-100">
                             <div class="card-header h-100">
+                                <button class="floating-button">?</button>
                                 <div class="row">
-                                    <div class="col-sm-6">
-                                        <!-- <div id="barchart"></div> -->
+                                    <div class="col-sm-8">
                                         <div class="row">
                                             <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Romance</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">8</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Sci-Fi</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">28</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Adventure</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">38</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Comedy</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">78</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Animation</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">88</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Drama</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">100</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Thriller</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">88</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">War</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">68</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Children</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">28</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Crime</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">18</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Horror</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">08</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Film-Noir</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">0</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Mystery</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">25</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Action</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">50</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Musical</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">75</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Western</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">88</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">IMAX</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">75</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Documentary</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">40</div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-1 fw-bold fw-bold">Fantasy</p>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="slider my-2">30</div>
-                                            </div>
-                                        </div>
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Romance</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">8</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Sci-Fi</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">28</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Adventure</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">38</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Comedy</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">78</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Animation</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">88</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Drama</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">100</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Thriller</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">88</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">War</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">68</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Children</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">28</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Crime</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">18</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Horror</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">08</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Film-Noir</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">0</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Mystery</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">25</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Action</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">50</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Musical</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">75</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Western</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">88</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">IMAX</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">75</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Documentary</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">40</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <p class="m-1 fw-bold fw-bold">Fantasy</p>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="slider my-2">30</div>
+                                                    </div>
+                                                </div>
+                                            </div>     
                                         <div class="text-center mt-2">
-                                            <button type="submit" class="btn btn-success me-4">Update</button>
-                                            <button type="submit" class="btn btn-success">Reset</button>
-                                        </div>
+                                            <button type="submit" class="btn btn-success me-4" id = "update-button">Update</button>
+                                            <button type="submit" class="btn btn-success" id = "reset-button">Reset</button>
+                                        </div>   
                                     </div>
-                                    <div class="col-sm-6 text-center">
-                                            <h3>Top 10 Movies</h3>
-                                            <br>
-                                            <img src="https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg" class="img-fluid w-25">
-                                            <p class="fw-bold">Titanic (1997)</p>
-                                            <br>
-                                            <img src="https://image.tmdb.org/t/p/w500/nnYHvA2tSVdtr8KxIy8F6YndCOy.jpg" class="img-fluid w-25">
-                                            <p class="fw-bold">Hellraiser (1987)</p>
-                                            <br>
-                                            <img src="https://image.tmdb.org/t/p/w500/tSadXiI88soRyS4mcSr7PsKWaqN.jpg" class="img-fluid w-25">
-                                            <p class="fw-bold">Barney's Great<br>Adventure (1998)</p>
-                                    </div>
+                                </div>
+                                <div class="col-sm-4 text-center">
+                                    <h3>Top 10 <br> Movies</h3>
+                                    <div id="movies-container" style="max-height: 620px; overflow-y: auto;" class = "img-fluid w-100"></div>
                                 </div>
                             </div>
                         </div>
-                    </div> 
-                </div>
+                    </div>
+                </div> 
+            </div>
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="card h-100">

@@ -1,5 +1,6 @@
 import json
 from .models import *
+import random
 
 from django.views.generic import TemplateView
 from django.http import (
@@ -46,10 +47,38 @@ def fetch_user_info(request):
         content_type='application/json'
     )
 
+def get_genre_ratings(request):
+    userId = request.POST.get('userId')
+    try:
+        user = Users.objects.get(id=userId)
+        data = user.genreRatings.split("|")
+    except Users.DoesNotExist:
+        data = []
+    return HttpResponse(
+        json.dumps(data),
+        content_type='application/json'
+    )
+
+def get_movies(request):
+    random_movies = Movie.objects.order_by('?')[:10]
+    movies = {}
+    for i, movie in enumerate(random_movies):
+        movies[i] = {
+            'title': movie.title,
+            'year': movie.year,
+            'poster': movie.poster,
+        }
+    return HttpResponse(
+        json.dumps(movies),
+        content_type='application/json'
+    )
+
 
 # Helper objects and functions for AJAX functionality
 switch = {
     'fetch_user_info': {'call': fetch_user_info},
+    'get_genre_ratings': {'call': get_genre_ratings},
+    'get_movies': {'call': get_movies}
 }
 
 def ajax(request):
@@ -84,3 +113,5 @@ def ajax(request):
 
         # execute the function
         return procedure(request)
+    
+

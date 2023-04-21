@@ -1,15 +1,122 @@
+// Global variable that holds the original 10 movies that will be displayed if "Reset" button is clicked
+var originalMovies = []
+
 $(document).ready(function() {
-     // Define the sliders
-     $(".slider").each(function() {
-        // read initial values from markup and remove that
-        var value = parseInt($(this).text(), 10);
-        $(this).empty().slider({
-          value: value,
-          range: "min",
-          animate: true,
-          orientation: "horizontal"
-        });
+
+  function createSliders(genre_ratings) {     
+    $(".slider").each(function(i) {
+      $(this).empty().slider({
+        value: genre_ratings[i],
+        range: "min",
+        animate: true,
+        orientation: "horizontal",
+        tooltip: "show", // display the slider value as a tooltip
+        slide: function(event, ui) { // update the tooltip as the slider is moved
+          $(this).find(".ui-slider-handle").text(ui.value);
+        },
+        stop: function(event, ui) { // hide the tooltip when slider is not being moved
+          $(this).find(".ui-slider-handle").text("");
+        }
+      });
     });
+  }
+  
+
+  // Function that displays random 10 movies
+  function displayMovies(data) {
+    // Clear the movies container and append the new movies
+    $('#movies-container').empty();
+    console.log(data)
+    $.each(data, function(index, movie) {
+      const movieHtml = '<div class="movie">' +
+                          '<img src="' + (movie.poster == "n/a" ? ("static/img/no-image-png-2.png").replace(/&amp;/g, "&") : movie.poster) + '">' +
+                          '<h2>' + movie.title + ' (' + movie.year + ')' + '</h2>' +
+                        '</div>';
+      $('#movies-container').append(movieHtml);
+    });
+  }
+
+  // Function that resets sliders to original values and displays original 10 movies
+  function resetSliders() {
+    displayMovies(originalMovies)
+    $.ajax({
+      type: 'POST',
+      url: '/ajax/',
+      dataType: "json",
+      data: {
+        call: 'get_genre_ratings',
+        userId: 6,
+        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+      },
+      success: function(data) {
+        $(".slider").each(function(i) {
+          $(this).slider("value", data[i]);
+        });
+      },
+      error: function(xhr, errmsg, err) {
+        console.log(xhr.status + ": " + xhr.responseText);
+      }
+    });
+  }
+
+  // Create sliders with initial user genre rating values
+  $.ajax({
+    type: 'POST',
+    url: '/ajax/',
+    dataType: "json",
+    data: {
+      call: 'get_genre_ratings',
+      userId: 6,
+      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+    },
+    success: function(data) {
+        createSliders(data)
+    },
+    error: function(xhr, errmsg, err) {
+      console.log(xhr.status + ": " + xhr.responseText);
+    }
+  });
+
+
+
+  // Set a flag to keep track of whether any slider value has been changed
+  var slidersChanged = false;
+
+  // Add an event listener to the sliders to set the flag when a value is changed
+  $(".slider").on("slidechange", function(event, ui) {
+    slidersChanged = true;
+  });
+
+  // Add an event listener to the update button to update the movies when clicked
+  $("#update-button").on("click", function() {
+    if (slidersChanged) {
+      // Make the AJAX call to get the updated movies
+      $.ajax({
+        url: "/ajax/",
+        type: "POST",
+        dataType: "json",
+        data: {
+          call: 'get_movies',
+          genre_ratings: $(".slider").map(function() { return $(this).slider("value"); }).get(),
+          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+        },
+        success: function(data) {
+          // Clear the movies container and append the new movies
+          $('#movies-container').empty();
+          displayMovies(data); 
+        },
+        error: function(xhr, errmsg, err) {
+          console.log(xhr.status + ": " + xhr.responseText);
+        }
+      });
+    }
+  
+    // Reset the flag after the movies have been updated
+    slidersChanged = false;
+  });
+
+  // Resets sliders and movies to original values when reset button is clicked
+  $("#reset-button").click(resetSliders);
 
     // Zoomable, Pannable, Hoverable Scatter Plot
     // Set height/width of plot
@@ -148,7 +255,6 @@ $(document).ready(function() {
         });
     }
 
-
     // --------------------
     // --- AJAX Example ---
     // --------------------
@@ -173,6 +279,7 @@ $(document).ready(function() {
             console.log("Always");
         });
     });
+
 
     // --------------------
     // --- AJAX Example ---
@@ -202,88 +309,22 @@ $(document).ready(function() {
       });
   });
 
-    
+    // Get initial 10 random movies
+    $.ajax({
+      url: "/ajax/",
+      type: "POST",
+      dataType: "json",
+      data: {
+        call: 'get_movies',
+        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+      },
+      success: function(data) {
+        originalMovies = data; // assign these original 10 movies to originalMovies global variable
+        displayMovies(data);
+      },
+      error: function(xhr, errmsg, err) {
+        console.log(xhr.status + ": " + xhr.responseText);
+      }
+    });
 
-
-    // Interactive bar chart prototype
-    function genreBarchart(data) {
-        // Set the dimensions of the chart
-        var margin = { top: 20, right: 20, bottom: 50, left: 40 },
-        width = 600 - margin.left - margin.right,
-        height = 200 - margin.top - margin.bottom;
-    
-        // Create the SVG element to contain the chart
-        var svg = d3.select("#barchart")
-        .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    
-        // Define the x and y scales
-        var x = d3.scaleBand()
-        .range([0, width])
-        .domain(data.slice(1).map(function(d) { return d[0]; }))
-        .padding(0.2);
-    
-        var y = d3.scaleLinear()
-        .range([height, 0])
-        .domain([0, d3.max(data.slice(1).map(function(d) { return d[1]; }))]);
-    
-        // Create the bars
-        svg.selectAll(".bar")
-        .data(data.slice(1))
-        .enter().append("rect")
-        .attr("class", "bar")
-        .attr("x", function(d) { return x(d[0]); })
-        .attr("width", x.bandwidth())
-        .attr("y", function(d) { return y(d[1]); })
-        .attr("height", function(d) { return height - y(d[1]); })
-        .attr("fill", "red");;
-    
-        // Add the x-axis
-        svg.append("g")
-        .attr("class", "x-axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x))
-        .selectAll("text")
-        .attr("transform", "rotate(45)")
-        .style("text-anchor", "start");;
-    
-        // Add the y-axis
-        svg.append("g")
-        .attr("class", "y-axis")
-        .call(d3.axisLeft(y));
-    }
-
-    var exampleUserData = [
-        ["genre", "rating", "value", "userId"],
-        ["Action", 246.0, 0.8861940298507462, 1],
-        ["Adventure", 276.5, 1.0, 1],
-        ["Animation", 36.5, 0.1044776119402985, 1],
-        ["Children", 68.5, 0.22388059701492538, 1],
-        ["Comedy", 153.0, 0.539179104477612, 1],
-        ["Crime", 80.0, 0.2667910447761194, 1],
-        ["Drama", 162.0, 0.5727611940298507, 1],
-        ["Fantasy", 261.5, 0.9440298507462687, 1],
-        ["Horror", 168.5, 0.5970149253731343, 1],
-        ["IMAX", 8.5, 0.0, 1],
-        ["Musical", 11.0, 0.009328358208955223, 1],
-        ["Mystery", 65.0, 0.21082089552238806, 1],
-        ["Romance", 43.5, 0.13059701492537312, 1],
-        ["Sci-Fi", 148.5, 0.5223880597014925, 1],
-        ["Thriller", 158.0, 0.5578358208955224, 1],
-        ["War", 33.0, 0.0914179104477612, 1],
-        ["Western", 13.5, 0.018656716417910446, 1]
-    ];
-
-    var bardata = [
-        ["genre", "value"],
-        ["Horror", 50],
-        ["Mystery", 30],
-        ["Romance", 10],
-        ["Action", 80],
-        ["Thriller", 70]
-    ];
-    genreBarchart(exampleUserData);
 });
