@@ -4,6 +4,73 @@ var originalRatings = [];
 
 $(document).ready(function() {
 
+  // modal dialogue box for user profile section
+  var dialog1 = $('<div></div>')
+    .html("<ul><li>Choose a user by entering a number between 1-6040 in the text box.</li><li>After choosing a user, you'll see their demographics and most recently rated movies displayed.</li><li>To the right you can see the top 10 recommendations for this user based on their genre preferences.</li><li>Below, you can see which cluster this user is placed in.</li?</ul>")
+    .dialog({
+      autoOpen: false,
+      modal: true,
+      title: 'User Profile Help',
+      width: 500
+    });
+
+  // modal dialogue box for recommendations section
+  var dialog2 = $('<div></div>')
+    .html("<ul><li>This is where you can view movie recommendations. Once a user is selected, the slider values will change based on that users preferences</li><li>This user's recommendations based on their genre preferences will be shown to the right of the sliders.</li><li>You can view new recommendations by adjusting the sliders and then clicking update.</li><li>Click the reset button if you want to view the original recommendations and reset the sliders.</li></ul>")
+    .dialog({
+      autoOpen: false,
+      modal: true,
+      title: 'Recommendations Help',
+      width: 500
+    });
+
+  // modal dialogue box for user cluster view section
+  var dialog3 = $('<div></div>')
+  .html('<ul><li>This cluster plot is a view of all the users in the database. They are clustered into groups based on their genre ratings.</li> <li>Each cluster has a "representative user" which is shown with a different symbol in the cluster plot. This "representative user" shows what the average user looks like for a given cluster. <li>You can hover over each user to see their demographics.</li><li>You can also filter the plot using the 5 filters provided. You can choose which filters you would like to apply.</li><li> If you see a user and would like to see what they would be recommended, select by clicking on the user in the cluster plot.</li><li>You will see this user added to the Counterfactual Persona Explorer (bottom right section). You can select an unlimited number of users.</li></ul>')
+  .dialog({
+    autoOpen: false,
+    modal: true,
+    title: 'User Cluster View Help',
+    width: 500
+  });
+
+  // modal dialogue box for counterfactual section
+  var dialog4 = $('<div></div>')
+  .html('<ul><li>Each user and their demographics selected from the cluster plot are displayed here.</li><li>Hover over a user to see their top movie recommendations.</li></ul>')
+  .dialog({
+    autoOpen: false,
+    modal: true,
+    title: 'Counterfactual Persona Explorer Help',
+    width: 500
+  });
+
+  // Add a click event listener to each button
+  $('#button1').click(function() {
+    // Open the first dialogue box when the first button is clicked
+    dialog1.dialog('open');
+  });
+
+  $('#button2').click(function() {
+    // Open the second dialogue box when the second button is clicked
+    dialog2.dialog('open');
+  });
+
+  $('#button3').click(function() {
+    // Open the second dialogue box when the second button is clicked
+    dialog3.dialog('open');
+  });
+
+  $('#button4').click(function() {
+    // Open the second dialogue box when the second button is clicked
+    dialog4.dialog('open');
+  });
+
+  // Add a click event listener to the close button of each dialog box
+  $('.ui-dialog-titlebar-close').click(function() {
+    // Close the corresponding dialog box when the close button is clicked
+    $(this).closest('.ui-dialog-content').dialog('close');
+  });
+
   function createSliders(genre_ratings) {     
     $(".slider").each(function(i) {
       $(this).empty().slider({

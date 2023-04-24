@@ -47,18 +47,14 @@
         <div class="container">
             <a class="navbar-brand" href="#">Fair Recommender System</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Link</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Dropdown</a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'example' %}">Something else here</a></li>
-                        </ul>
+
+            <div class="navbar-collapse collapse justify-content-end" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="aboutBtn">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="helpBtn">Getting Started</a>
                     </li>
                 </ul>
             </div>
@@ -69,3 +65,32 @@
     {% endblock %}
 </body>
 </html>
+
+
+<div id="aboutDialog">
+    <p>Welcome to our fair movie recommender system! We believe that everyone deserves to enjoy movies that cater to their unique tastes and preferences. Our system is designed to provide fair and non-biased movie recommendations by giving you, the user, full control to explore and discover movies that interest you. We don't believe in hiding anything from you, and that's why we strive to be transparent and open about our recommendations. With our user-centric approach, we aim to provide you with the best movie recommendations that match your interests and preferences, without any hidden biases or preconceptions. Thank you for choosing our fair movie recommender system, and we hope you enjoy discovering new movies that you'll love!</p>
+</div>
+
+<div id="helpDialog">
+    <p><ul><li>To get started, select a user in the 'User Profile' section. You'll see the 'Recommendations' and 'User Cluster View' sections are customized to the user you selected.</li><li>For more help navigating each section, click the '?' in the top right corner.</li></ul></p>
+</div>
+  
+  <script>
+  $(document).ready(function() {
+    $("#aboutBtn").click(function() {
+      $("#aboutDialog").dialog({
+        modal: true,
+        title: 'Welcome to the Fair Recommender System!',
+        width: 500
+      });
+    });
+
+    $("#helpBtn").click(function() {
+      $("#helpDialog").dialog({
+        modal: true,
+        title: 'Getting Started',
+        width: 500
+      });
+    });
+  });
+  </script>
