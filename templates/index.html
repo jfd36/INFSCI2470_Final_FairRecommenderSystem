@@ -32,10 +32,7 @@
         width: 300%;
         border: none;
         background: #f9fff9;
-    }
-
-    .m-1 {
-        white-space: nowrap;
+        top: -0.15em;
     }
 
     .movie img {
@@ -47,15 +44,20 @@
         font-weight: bold;
     }
 
+    .ui-slider-handle {
+        transition: width 200ms ease;
+        color: #fff;
+    }
+
     .ui-slider-handle:active{
         border: none;
         border-radius: 10%;
         color: #fff;
         font-size: 12px;
-        height: 20px;
+        height: 17px;
         line-height: 20px;
         text-align: center;
-        width: 30px;
+        width: 25px;
     }
 
     .floating-button {
@@ -72,22 +74,23 @@
     }
 
     .floating-button:hover {
-    background-color: #0056b3;
+        background-color: #0056b3;
     }
 
 </style>
 {% endblock %}
 
 {% block load_js %}
-    <script src="{% static "js/example.js" %}"></script>
+    <script src="{% static "js/index.js" %}"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
 {% endblock %}
 
 {% block content %}
     <img src = "{% static 'img/no-image-png-2.png' %}" id = "placeholderImage" style = "display: none">
+    {% csrf_token %}
     <!-- Page content-->   
     <div class="container-fluid">
-        <div class="row py-2">
+        <div class="row pt-2">
             <div class="col-sm-7 gx-0">
                 <div class="row">
                     <div class="col-sm-12">
@@ -95,38 +98,36 @@
                             <div class="card-header h-100">
                                 <button class="floating-button">?</button>
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-2">
                                         <!-- Space for user profile picture -->
                                         <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle">
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-5">
                                         <form>
                                             <div class="mb-2">
                                                 <label for="userId" class="form-label fw-bold fs-5">User Profile</label>
-                                                <input type="text" class="form-control" id="userId" placeholder="Enter ID between 1 - 6040">
+                                                <select id="userId" class="form-control" type="text">
+                                                    <option value="" selected disabled>Enter ID between 1 - 6040</option>
+                                                    {% for userId in userIds %}
+                                                        <option value="{{ userId }}">{{ userId }}</option>
+                                                    {% endfor %}
+                                                </select>
                                             </div>
                                             <button class="btn btn-success float-end" id="fetchUser">Fetch User</button>
                                         </form>
                                         <div>
-                                            <p class="fw-bold">
-                                                User: <span id="userIdLabel"></span>
-                                                <br>Gender: <span id="genderLabel"></span>
-                                                <br>Age Range: <span id="ageLabel"></span>
-                                                <br>Occupation: <span id="occupationLabel"></span>
-                                                <br>Location: <span id="locationLabel"></span>
+                                            <p>
+                                                <b>User: </b><span id="userIdLabel"></span>
+                                                <br><b>Gender: </b><span id="genderLabel"></span>
+                                                <br><b>Age Range: </b><span id="ageLabel"></span>
+                                                <br><b>Occupation: </b><span id="occupationLabel"></span>
+                                                <br><b>Location: </b><span id="locationLabel"></span>
                                             </p>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-5">
                                         <p class="form-label fw-bold fs-5">Recent Interactions</p>
-                                        <ol class="mt-3">
-                                            <li>Recent Interaction 1</li>
-                                            <li>Recent Interaction 2</li>
-                                            <li>Recent Interaction 3</li>
-                                            <li>Recent Interaction 4</li>
-                                            <li>Recent Interaction 5</li>
-                                            <li>Recent Interaction 6</li>
-                                            <li>...</li>
+                                        <ol id="recentInteractions" class="mt-3 h6 text-nowrap" style="max-height: 160px; overflow-y: auto; margin-left: -25px">
                                         </ol>
                                     </div>
                                 </div>
@@ -139,67 +140,97 @@
                         <div class="card h-100">
                             <div class="card-header h-100">
                                 <div class="row"> 
-                                    <div class="col-sm-8">
-                                        <h3>User Cluster View</h3>
+                                    <div class="col-sm-10">
+                                        <p class="form-label fw-bold fs-5">User Cluster View</p>
                                         <div id="chart"></div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-2">
                                         <form class="text-center">
                                             <div class="mb-2">
                                                 <label for="age" class="form-label fw-bold fs-5">Age:</label>
                                                 <br>
-                                                <select id="age" name="age">
-                                                    <option value="18-24">18-24</option>
-                                                    <option value="25-34">25-34</option>
-                                                    <option value="35-44">35-44</option>
-                                                    <option value="45-54">45-54</option>
-                                                    <option value="55+">55+</option>
+                                                <select id="age" class="form-control text-center" type="text" name="age">
+                                                    <option value="">None</option>
+                                                    <option value="1">Under 18</option>
+                                                    <option value="18">18-24</option>
+                                                    <option value="25">25-34</option>
+                                                    <option value="35">35-44</option>
+                                                    <option value="45">45-59</option>
+                                                    <option value="50">50-55</option>
+                                                    <option value="56">56+</option>
                                                 </select>
-                                                <br><br>
+                                                <br>
                                                 <label for="gender" class="form-label fw-bold fs-5">Gender:</label>
                                                 <br>
-                                                <select id="gender" name="gender">
-                                                    <option value="male">Male</option>
-                                                    <option value="female">Female</option>
-                                                    <option value="non-binary">Non-binary</option>
-                                                    <option value="other">Other</option>
+                                                <select id="gender" class="form-control text-center" type="text" name="gender">
+                                                    <option value="">None</option>
+                                                    <option value="M">Male</option>
+                                                    <option value="F">Female</option>
                                                 </select>
-                                                <br><br>
+                                                <br>
                                                 <label for="location" class="form-label fw-bold fs-5">Location:</label>
                                                 <br>
-                                                <select id="location" name="location">
-                                                    <option value="north-america">North America</option>
-                                                    <option value="south-america">South America</option>
-                                                    <option value="europe">Europe</option>
-                                                    <option value="asia">Asia</option>
-                                                    <option value="africa">Africa</option>
-                                                    <option value="australia">Australia</option>
+                                                <select id="location" class="form-control text-center" type="text" name="location">
+                                                    <option value="">None</option>
+                                                    {% for zipcode in zipcodes %}
+                                                        <option value="{{ zipcode }}">{{ zipcode }}</option>
+                                                    {% endfor %}
                                                 </select>
-                                                <br><br>
+                                                <br>
                                                 <label for="occupation" class="form-label fw-bold fs-5">Occupation:</label>
                                                 <br>
-                                                <select id="occupation" name="occupation">
-                                                    <option value="student">Student</option>
-                                                    <option value="engineer">Engineer</option>
-                                                    <option value="teacher">Teacher</option>
-                                                    <option value="doctor">Doctor</option>
-                                                    <option value="entrepreneur">Entrepreneur</option>
-                                                    <option value="other">Other</option>
+                                                <select id="occupation" class="form-control text-center" type="text" name="occupation">
+                                                    <option value="">None</option>
+                                                    <option value="0">Other or Unspecified</option>
+                                                    <option value="1">Academic/Educator</option>
+                                                    <option value="2">Artist</option>
+                                                    <option value="3">Clerical/Admin</option>
+                                                    <option value="4">College/Grad Student</option>
+                                                    <option value="5">Customer Service</option>
+                                                    <option value="6">Doctor/Health Care</option>
+                                                    <option value="7">Executive/Managerial</option>
+                                                    <option value="8">Farmer</option>
+                                                    <option value="9">Homemaker</option>
+                                                    <option value="10">K-12 Student</option>
+                                                    <option value="11">Lawyer</option>
+                                                    <option value="12">Programmer</option>
+                                                    <option value="13">Retired</option>
+                                                    <option value="14">Sales/Marketing</option>
+                                                    <option value="15">Scientist</option>
+                                                    <option value="16">Self-Employed</option>
+                                                    <option value="17">Technician/Engineer</option>
+                                                    <option value="18">Tradesman/Craftsman</option>
+                                                    <option value="19">Unemployed</option>
+                                                    <option value="20">Writer</option>
                                                 </select>
-                                                <br><br>
+                                                <br>
                                                 <label for="top-genre" class="form-label fw-bold fs-5">Top Genre:</label>
                                                 <br>
-                                                <select id="top-genre" name="top-genre">
-                                                    <option value="pop">Romance</option>
-                                                    <option value="rock">Sci-Fi</option>
-                                                    <option value="hip-hop">Hip-Hop</option>
-                                                    <option value="country">Country</option>
-                                                    <option value="electronic">Electronic</option>
-                                                    <option value="other">Other</option>
+                                                <select id="top-genre" class="form-control text-center" type="text" name="top-genre">
+                                                    <option value="">None</option>
+                                                    <option value="action">Action</option>
+                                                    <option value="adventure">Adventure</option>
+                                                    <option value="animation">Animation</option>
+                                                    <option value="children">Children's</option>
+                                                    <option value="comedy">Comedy</option>
+                                                    <option value="crime">Crime</option>
+                                                    <option value="documentary">Documentary</option>
+                                                    <option value="drama">Drama</option>
+                                                    <option value="fantasy">Fantasy</option>
+                                                    <option value="film-noir">Film-Noir</option>
+                                                    <option value="horror">Horror</option>
+                                                    <option value="imax">IMAX</option>
+                                                    <option value="musical">Musical</option>
+                                                    <option value="mystery">Mystery</option>
+                                                    <option value="romance">Romance</option>
+                                                    <option value="sci-fi">Sci-Fi</option>
+                                                    <option value="thriller">Thriller</option>
+                                                    <option value="war">War</option>
+                                                    <option value="western">Western</option>
                                                 </select>
                                             </div>
-                                            <br><br>
-                                            <button type="submit" class="btn btn-success">Search</button>
+                                            <br>
+                                            <button id="search" class="btn btn-success mb-2">Search</button>
                                         </form>
                                     </div>
                                 </div> 
@@ -220,115 +251,115 @@
                                             <div class="col-sm-6">
                                                 <div class="row">
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Romance</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Romance</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">8</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Sci-Fi</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Sci-Fi</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">28</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Adventure</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Adventure</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">38</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Comedy</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Comedy</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">78</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Animation</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Animation</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">88</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Drama</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Drama</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">100</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Thriller</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Thriller</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">88</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">War</p>
+                                                        <p class="m-1 text-nowrap fw-bold">War</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">68</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Children</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Children</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">28</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Crime</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Crime</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">18</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Horror</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Horror</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">08</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Film-Noir</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Film-Noir</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">0</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Mystery</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Mystery</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">25</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Action</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Action</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">50</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Musical</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Musical</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">75</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Western</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Western</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">88</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">IMAX</p>
+                                                        <p class="m-1 text-nowrap fw-bold">IMAX</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">75</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Documentary</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Documentary</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">40</div>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        <p class="m-1 fw-bold fw-bold">Fantasy</p>
+                                                        <p class="m-1 text-nowrap fw-bold">Fantasy</p>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="slider my-2">30</div>
@@ -343,7 +374,7 @@
                                 </div>
                                 <div class="col-sm-4 text-center">
                                     <h3>Top 10 <br> Movies</h3>
-                                    <div id="movies-container" style="max-height: 620px; overflow-y: auto;" class = "img-fluid w-100"></div>
+                                    <div id="movies-container" style="max-height: 550px; overflow-y: auto;" class = "img-fluid w-100"></div>
                                 </div>
                             </div>
                         </div>
@@ -354,39 +385,33 @@
                     <div class="col-sm-12">
                         <div class="card h-100">
                             <div class="card-header h-100">
-                                {% csrf_token %}
-                                <!-- <button id="ajax_demo" class="btn btn-primary btn-lg">AJAX Demo</button> -->
-                                <h3 class="text-center">Counterfactual Persona Explorer</h3>
+                                <p class="form-label fw-bold fs-5">Counterfactual Persona Explorer</p>
                                 <div class="row">
                                     <div class="col-md-2">
                                         <!-- Space for user profile picture -->
                                         <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle w-75">
                                     </div>
-                                    <div class="col-md-4">
-                                        <div>
-                                            <p class="fw-bold">
-                                                User: 34
-                                                <br>Gender: F
-                                                <br>Age Range: 23
-                                                <br>Occupation: Programmer
-                                                <br>Location: 15213
-                                            </p>
-                                        </div>
+                                    <div class="col-md-4 p-0">
+                                        <h6>
+                                            User: 34
+                                            <br>Gender: F
+                                            <br>Age Range: 23
+                                            <br>Occupation: Programmer
+                                            <br>Location: 15213
+                                        </h6>
                                     </div>
                                     <div class="col-md-2">
                                         <!-- Space for user profile picture -->
                                         <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle w-75">
                                     </div>
-                                    <div class="col-md-4">
-                                        <div>
-                                            <p class="fw-bold">
-                                                User: 1302
-                                                <br>Gender: M
-                                                <br>Age Range: 76
-                                                <br>Occupation: Conman
-                                                <br>Location: 10001
-                                            </p>
-                                        </div>
+                                    <div class="col-md-4 p-0">
+                                        <h6>
+                                            User: 1302
+                                            <br>Gender: M
+                                            <br>Age Range: 76
+                                            <br>Occupation: Conman
+                                            <br>Location: 10001
+                                        </h6>
                                     </div>
                                 </div>
                             </div>

@@ -9,23 +9,47 @@ from django.http import (
     HttpResponseServerError,
     JsonResponse
 )
+from django.db.models import Q
 
 # Create your views here.
 class index(TemplateView):
     template_name = "index.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        zipcodes = sorted([user.zipCode for user in Users.objects.distinct('zipCode')])
+        userids = list(Users.objects.values_list('userId', flat=True).order_by('userId'))
+
+        context['zipcodes'] = zipcodes
+        context['userIds'] = userids
+
+        return context
+
 class example(TemplateView):
     template_name = "example.html"
 
+def rating_to_stars(rating):
+    full_star = '&#9733;'  # Full star character
+    half_star = '&#189;&#9733;'  # Half star character
+    empty_star = '&#9734;'  # Empty star character
+
+    stars = full_star * int(rating)
+    if rating % 1 == 0.5:
+        stars += half_star
+    stars += empty_star * (5 - int(rating + 0.5))  # Fill the remaining stars with empty stars
+    stars += "</span>"
+    stars = "<span class='text-success'>" + stars
+    return stars
+
 def cluster_csv(request):
-    data = {}
+    data = []
 
     with open('clustering_with_pickle_coordinates_v2.csv', encoding='utf-8') as f:
         csvReader = csv.DictReader(f)
 
         for row in csvReader:
-            key = row['user_id']
-            data[key] = row
+            data.append([row["x"], row["y"], row["cluster"], row["user_id"], row["is_representative"]])
         
         return HttpResponse(
             json.dumps(data),
@@ -35,12 +59,20 @@ def cluster_csv(request):
 def fetch_user_info(request):
     userId = request.POST.get('userId')
     user = Users.objects.get(userId=userId)
+
+    # Fetch the chronological list of ratings for the user
+    ratings = Rating.objects.filter(userId=user).order_by('-timestamp')
+    
+    # Extract the rating data and store it in a list
+    rating_data = [f'<b>"{rating.movie.title}"</b><br>{rating_to_stars(float(rating.rating))}' for rating in ratings]
+    
     data = {
         'gender': user.gender,
         'age': user.age,
         'occupation': user.occupation,
         'zipCode': user.zipCode,
-        'genreRatings': user.genreRatings
+        'genreRatings': user.genreRatings,
+        'ratings': rating_data
     }
 
     return HttpResponse(
@@ -62,11 +94,53 @@ def get_movies(request):
         content_type='application/json'
     )
 
+def search_users(request):
+    data = [[0, 0, 0, 0, 0]] # Finally found this - the colors get wonky is the first user is representative vs non-representative without this.
+    age = request.POST.get("age")
+    gender = request.POST.get("gender")
+    location = request.POST.get("location")
+    occupation = request.POST.get("occupation")
+    top_genre = request.POST.get("top_genre")
+    
+    query = Q()
+    if age:
+        query &= Q(age=age)
+    if gender:
+        query &= Q(gender=gender)
+    if location:
+        query &= Q(zipCode=location)
+    if occupation:
+        query &= Q(occupation=occupation)
+    # if top_genre:
+    #     query &= Q(top_genre=top_genre)
+    print(query)
+
+    users = Users.objects.filter(query).values_list('userId', flat=True)
+
+    with open('clustering_with_pickle_coordinates_v2.csv', encoding='utf-8') as f:
+        csvReader = csv.DictReader(f)
+
+        if not age and not gender and not location and not occupation and not top_genre:
+            for row in csvReader:
+                data.append([row["x"], row["y"], 0, row["user_id"], 0])
+        else:
+            for row in csvReader:
+                if int(row["user_id"]) in users:
+                    data.append([row["x"], row["y"], 1, row["user_id"], 1])
+                else:
+                    data.append([row["x"], row["y"], 0, row["user_id"], 0])
+        
+        return HttpResponse(
+            json.dumps(data),
+            content_type='application/json'
+        )
+
 # Helper objects and functions for AJAX functionality
 switch = {
     'fetch_user_info': {'call': fetch_user_info},
     'get_movies': {'call': get_movies},
-    'cluster_csv': {'call': cluster_csv}
+    'cluster_csv': {'call': cluster_csv},
+    'search_users': {'call': search_users}
 }
 
 def ajax(request):
