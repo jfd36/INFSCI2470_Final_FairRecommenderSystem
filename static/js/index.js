@@ -9,25 +9,25 @@ $(document).ready(function () {
 	var nonRepresentativeDots;
 
 	var occupations = [
-		"Other or Not Specified",
-		"Academic/Educator",
+		"Unpecified",
+		"Educator",
 		"Artist",
-		"Clerical/Admin",
-		"College/Grad Student",
-		"Customer Service",
-		"Doctor/Health Care",
-		"Executive/Managerial",
+		"Clerical",
+		"College",
+		"Service",
+		"Health Care",
+		"Managerial",
 		"Farmer",
 		"Homemaker",
 		"K-12 Student",
 		"Lawyer",
 		"Programmer",
 		"Retired",
-		"Sales/Marketing",
+		"Marketing",
 		"Scientist",
 		"Self-Employed",
-		"Technician/Engineer",
-		"Tradesman/Craftsman",
+		"Engineer",
+		"Craftsman",
 		"Unemployed",
 		"Writer"
 	];
@@ -278,6 +278,7 @@ $(document).ready(function () {
 		}
 	});
 
+	// Fetch
     async function fetchUser(userId) {
 		return new Promise((resolve, reject) => {
 			$.ajax({
@@ -307,8 +308,38 @@ $(document).ready(function () {
 	}
   
 	async function addCounterfactualPersona(userId) {
-
+		if ($('#user-'+userId).length) {
+			return;
+		}
+		let user = await fetchUser(userId)
+		let counterfactualPersonaHTML = `
+			<div class="col-sm-6">
+				<div class="card mb-3">
+					<div class="row card-body">
+						<div class="col-sm-4 text-center">
+							<img src="` + $("#avatarImage").attr("src") + `" class="img-fluid rounded-circle w-75">
+							<button class="btn btn-success btn-sm mt-2 movies-btn">Movies</button>
+							<button class="btn btn-danger btn-sm mt-2 delete-btn">Delete</button>
+						</div>
+						<div class="col-sm-8">
+							<h5 id="user-${userId}" class="card-title">User ${userId}</h5>
+							<p class="card-text">		
+								<b>Gender: </b>${user.gender}<br>
+								<b>Age: </b>${ageRange(user.age)}<br>
+								<b>Occupation: </b>${occupations[user.occupation]}<br>
+								<b>Location: </b>${user.zipCode}
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		`;
+		$("#counterfactual-personas").append(counterfactualPersonaHTML);
 	}
+
+	$("#counterfactual-personas").on("click", ".delete-btn", function() {
+		$(this).closest(".col-sm-6").remove();
+	});
 
   	function generate_cluster(data) {
 		// Zoomable, Pannable, Hoverable Scatter Plot

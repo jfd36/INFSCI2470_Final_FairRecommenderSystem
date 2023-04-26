@@ -86,7 +86,8 @@
 {% endblock %}
 
 {% block content %}
-    <img src = "{% static 'img/no-image-png-2.png' %}" id = "placeholderImage" style = "display: none">
+    <img src="{% static 'img/no-image-png-2.png' %}" id="placeholderImage" style="display: none">
+    <img src="{% static 'img/user-profile-picture01.png' %}" id="avatarImage" style="display: none">
     {% csrf_token %}
     <!-- Page content-->   
     <div class="container-fluid">
@@ -144,7 +145,7 @@
                                         <p class="form-label fw-bold fs-5">User Cluster View</p>
                                         <div id="chart"></div>
                                     </div>
-                                    <div class="col-sm-2">
+                                    <div class="col-sm-2 px-0">
                                         <form class="text-center">
                                             <div class="mb-2">
                                                 <label for="age" class="form-label fw-bold fs-5">Age:</label>
@@ -373,7 +374,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4 text-center">
-                                    <h3>Top 10 <br> Movies</h3>
+                                    <p class="form-label fw-bold fs-5">Top 10 Movies</p>
                                     <div id="movies-container" style="max-height: 550px; overflow-y: auto;" class = "img-fluid w-100"></div>
                                 </div>
                             </div>
@@ -386,34 +387,7 @@
                         <div class="card h-100">
                             <div class="card-header h-100">
                                 <p class="form-label fw-bold fs-5">Counterfactual Persona Explorer</p>
-                                <div class="row">
-                                    <div class="col-md-2">
-                                        <!-- Space for user profile picture -->
-                                        <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle w-75">
-                                    </div>
-                                    <div class="col-md-4 p-0">
-                                        <h6>
-                                            User: 34
-                                            <br>Gender: F
-                                            <br>Age Range: 23
-                                            <br>Occupation: Programmer
-                                            <br>Location: 15213
-                                        </h6>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <!-- Space for user profile picture -->
-                                        <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle w-75">
-                                    </div>
-                                    <div class="col-md-4 p-0">
-                                        <h6>
-                                            User: 1302
-                                            <br>Gender: M
-                                            <br>Age Range: 76
-                                            <br>Occupation: Conman
-                                            <br>Location: 10001
-                                        </h6>
-                                    </div>
-                                </div>
+                                <div id="counterfactual-personas" class="row" style="height: 100px; max-height: 100px; overflow-y: auto;"></div>
                             </div>
                         </div>
                     </div>
