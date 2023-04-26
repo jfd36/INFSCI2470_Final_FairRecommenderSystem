@@ -80,20 +80,6 @@ def fetch_user_info(request):
         content_type='application/json'
     )
 
-def get_movies(request):
-    random_movies = Movie.objects.order_by('?')[:10]
-    movies = {}
-    for i, movie in enumerate(random_movies):
-        movies[i] = {
-            'title': movie.title,
-            'year': movie.year,
-            'poster': movie.poster,
-        }
-    return HttpResponse(
-        json.dumps(movies),
-        content_type='application/json'
-    )
-
 def search_users(request):
     data = [[0, 0, 0, 0, 0]] # Finally found this - the colors get wonky is the first user is representative vs non-representative without this.
     age = request.POST.get("age")
@@ -113,7 +99,6 @@ def search_users(request):
         query &= Q(occupation=occupation)
     # if top_genre:
     #     query &= Q(top_genre=top_genre)
-    print(query)
 
     users = Users.objects.filter(query).values_list('userId', flat=True)
 
@@ -135,12 +120,26 @@ def search_users(request):
             content_type='application/json'
         )
 
+def get_movies(request):
+    random_movies = Movie.objects.order_by('?')[:10]
+    movies = {}
+    for i, movie in enumerate(random_movies):
+        movies[i] = {
+            'title': movie.title,
+            'year': movie.year,
+            'poster': movie.poster,
+        }
+    return HttpResponse(
+        json.dumps(movies),
+        content_type='application/json'
+    )
+
 # Helper objects and functions for AJAX functionality
 switch = {
-    'fetch_user_info': {'call': fetch_user_info},
-    'get_movies': {'call': get_movies},
     'cluster_csv': {'call': cluster_csv},
-    'search_users': {'call': search_users}
+    'fetch_user_info': {'call': fetch_user_info},
+    'search_users': {'call': search_users},
+    'get_movies': {'call': get_movies}
 }
 
 def ajax(request):

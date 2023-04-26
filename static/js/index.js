@@ -126,13 +126,12 @@ $(document).ready(function () {
 	function displayMovies(data) {
 		// Clear the movies container and append the new movies
 		$('#movies-container').empty();
-		console.log(data)
 		$.each(data, function (index, movie) {
-		const movieHtml = '<div class="movie">' +
-			'<img src="' + (["n/a", "nan"].indexOf(movie.poster) !== -1 ? $("#placeholderImage").attr("src") : movie.poster) + '">' +
-			'<h2>' + movie.title + ' (' + movie.year + ')' + '</h2>' +
-			'</div>';
-		$('#movies-container').append(movieHtml);
+			const movieHtml = '<div class="movie">' +
+				'<img src="' + (["n/a", "nan"].indexOf(movie.poster) !== -1 ? $("#placeholderImage").attr("src") : movie.poster) + '">' +
+				'<h2>' + movie.title + ' (' + movie.year + ')' + '</h2>' +
+				'</div>';
+			$('#movies-container').append(movieHtml);
 		});
 	}
 
@@ -153,27 +152,27 @@ $(document).ready(function () {
 	// Add an event listener to the update button to update the movies when clicked
 	$("#update-button").on("click", function () {
 		if (slidersChanged) {
-		// Make the AJAX call to get the updated movies
-		$.ajax({
-			url: "/ajax/",
-			type: "POST",
-			dataType: "json",
-			data: {
-			call: 'get_movies',
-			genre_ratings: $(".slider").map(function () {
-				return $(this).slider("value");
-			}).get(),
-			csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
-			},
-			success: function (data) {
-			// Clear the movies container and append the new movies
-			$('#movies-container').empty();
-			displayMovies(data);
-			},
-			error: function (xhr, errmsg, err) {
-			console.log(xhr.status + ": " + xhr.responseText);
-			}
-		});
+			// Make the AJAX call to get the updated movies
+			$.ajax({
+				url: "/ajax/",
+				type: "POST",
+				dataType: "json",
+				data: {
+				call: 'get_movies',
+				genre_ratings: $(".slider").map(function () {
+					return $(this).slider("value");
+				}).get(),
+				csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+				},
+				success: function (data) {
+					// Clear the movies container and append the new movies
+					$('#movies-container').empty();
+					displayMovies(data);
+				},
+				error: function (xhr, errmsg, err) {
+					console.log(xhr.status + ": " + xhr.responseText);
+				}
+			});
 		}
 
 		// Reset the flag after the movies have been updated
@@ -201,8 +200,6 @@ $(document).ready(function () {
 				csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
 			},
 			success: function (json) {
-				console.log(json);
-				// cluster_chart.update(json);
 				generate_cluster(json);
 			},
 			error: function (xhr, errmsg, err) {
@@ -265,11 +262,12 @@ $(document).ready(function () {
 
 	// Get initial 10 random movies
 	$.ajax({
-			url: "/ajax/",
-			type: "POST",
-			dataType: "json",
-			data: {
+		url: "/ajax/",
+		type: "POST",
+		dataType: "json",
+		data: {
 			call: 'get_movies',
+			// userId: userId, // Some day we'll want to fetch recommendations based on the predictions of some model. Would also need genre ratings, etc.
 			csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
 		},
 		success: function (data) {
@@ -281,7 +279,30 @@ $(document).ready(function () {
 		}
 	});
 
-	// Fetch
+	// Fetch Movie recommendations
+	async function fetchMovies(userId) {
+		return new Promise((resolve, reject) => {
+			$.ajax({
+				url: "/ajax/",
+				type: "POST",
+				dataType: "json",
+				data: {
+					call: 'get_movies',
+					userId: userId,
+					csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+				},
+				success: function (json) {
+					resolve(json);
+				},
+				error: function (xhr, errmsg, err) {
+					console.log("Error", xhr.status + ": " + xhr.responseText);
+					reject(xhr);
+				}
+			});
+		});
+	}
+
+	// Fetch User
     async function fetchUser(userId) {
 		return new Promise((resolve, reject) => {
 			$.ajax({
@@ -340,10 +361,6 @@ $(document).ready(function () {
 		$("#counterfactual-personas").append(counterfactualPersonaHTML);
 	}
 
-	$("#counterfactual-personas").on("click", ".delete-btn", function() {
-		$(this).closest(".col-sm-6").remove();
-	});
-
   	function generate_cluster(data) {
 		// Zoomable, Pannable, Hoverable Scatter Plot
 		// Set height/width of plot
@@ -383,14 +400,6 @@ $(document).ready(function () {
 		xAxis = (g, x) => g.attr("transform", `translate(0,${height})`).call(d3.axisTop(x).ticks(12)).call(g => g.select(".domain").attr("display", "none"))
 
 		z = d3.scaleOrdinal().domain(data.map(d => d[2])).range(d3.schemeCategory10)
-		const firstDomainValue = data.map(d => d[2])[0];
-		const secondDomainValue = data.map(d => d[2])[1];
-
-		const firstColor = z(firstDomainValue);
-		const secondColor = z(secondDomainValue);
-
-		console.log("First color:", firstColor);
-		console.log("Second color:", secondColor);
 		y = d3.scaleLinear().domain([-4.5 * k, 4.5 * k]).range([height, 0])
 		x = d3.scaleLinear().domain([-4.5, 4.5]).range([0, width])
 
@@ -408,9 +417,6 @@ $(document).ready(function () {
 
 			nonReprData = data.filter(d => d[4] !== 1)
 			reprData = data.filter(d => d[4] == 1)
-
-			console.log(reprData)
-			console.log(nonReprData)
 
 			nonRepresentativeDots = gDot.selectAll(".non-representative")
 				.data(nonReprData)
@@ -446,7 +452,6 @@ $(document).ready(function () {
 						tooltip.transition().duration(500).style("opacity", 0);
 						lastHoveredPoint = null;
 				}).on("click", function (event, d) {
-					console.log("Clicked point's d[3]:", d[3]);
 					addCounterfactualPersona(d[3]);
 				});
 
@@ -560,25 +565,45 @@ $(document).ready(function () {
 			}
 		});
 
+	$("#counterfactual-personas").on("click", ".delete-btn", function() {
+		$(this).closest(".col-sm-6").remove();
+	});
+	
+	// modal dialogue box for counterfactual section
+	var dialogPersona = $('<div></div>')
+		.attr('id', 'dialogPersona')
+		.html('<div id="counterfactual-movie-recs"></div>')
+		.dialog({
+			autoOpen: false,
+			modal: true,
+			title: 'Recommended Movies',
+			width: 500,
+			create: function(event, ui) {
+				$(event.target).parent().find('.ui-dialog-titlebar-close').addClass('btn-danger').addClass('btn').addClass('pt-1');
+			}
+		});
+
+	$("#counterfactual-personas").on("click", ".movies-btn", async function() {
+		var userTitle = $(this).closest(".card-body").find("h5").text();
+		dialogPersona.dialog("option", "title", "Recommended Movies for " + userTitle);
+		let movies = await fetchMovies(userTitle.split()[1]);
+		console.log(movies)
+		let counterfactualMovies = $("<div style='display: flex'></div>");
+		$.each(movies, function (index, movie) {
+			const movieHtml = '<div class="movie text-center mx-2">' +
+				'<img src="' + (["n/a", "nan"].indexOf(movie.poster) !== -1 ? $("#placeholderImage").attr("src") : movie.poster) + '">' +
+				'<h2>' + movie.title + ' (' + movie.year + ')' + '</h2>' +
+				'</div>';
+			counterfactualMovies.append(movieHtml);
+		});
+		dialogPersona.html(counterfactualMovies);
+		dialogPersona.dialog('open');
+	});
+
 	// Add a click event listener to each button
 	$('.floating-button').click(function() {
 		const dialogId = $(this).data('dialog-id');
 		$('#' + dialogId).dialog('open');
-	});
-	$('#button1').click(function() {
-		dialog1.dialog('open');
-	});
-
-	$('#button2').click(function() {
-		dialog2.dialog('open');
-	});
-
-	$('#button3').click(function() {
-		dialog3.dialog('open');
-	});
-
-	$('#button4').click(function() {
-		dialog4.dialog('open');
 	});
 
 	// Add a click event listener to the close button of each dialog box
