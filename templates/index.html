@@ -4,80 +4,7 @@
 {% block title %}INFSCI2470 - Fair Recommender System{% endblock %}
 
 {% block load_css %}
-<style>
-    .tooltip {
-        position: absolute;
-        padding: 10px;
-        background-color: white;
-        border: 1px solid black;
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .ui-slider .ui-slider-range {
-        background: #198754;
-    }
-    .slider .ui-slider-handle {
-        background-color: #fff;
-        border: 1px solid #ccc;
-    }
-
-    /* Style the slider handle on hover and active states */
-    .slider .ui-slider-handle:hover, .slider .ui-slider-handle:active {
-        background-color: #198754;
-        border-color: #198754;
-    }
-
-    .slider.ui-slider-horizontal {
-        width: 300%;
-        border: none;
-        background: #f9fff9;
-        top: -0.15em;
-    }
-
-    .movie img {
-        width: 115px;
-        height: auto;
-    }
-    .movie h2 {
-        font-size: 16px;
-        font-weight: bold;
-    }
-
-    .ui-slider-handle {
-        transition: width 200ms ease;
-        color: #fff;
-    }
-
-    .ui-slider-handle:active{
-        border: none;
-        border-radius: 10%;
-        color: #fff;
-        font-size: 12px;
-        height: 17px;
-        line-height: 20px;
-        text-align: center;
-        width: 25px;
-    }
-
-    .floating-button {
-        position: absolute;
-        top: 0;
-        right: 0;
-        /* You can customize the button appearance, e.g., padding, background color, etc. */
-        padding: 10px 20px;
-        background-color: #007BFF;
-        color: #FFF;
-        border: none;
-        cursor: pointer;
-        font-size: 14px;
-    }
-
-    .floating-button:hover {
-        background-color: #0056b3;
-    }
-
-</style>
+    <link rel="stylesheet" href="{% static "css/index.css" %}">
 {% endblock %}
 
 {% block load_js %}
@@ -86,22 +13,22 @@
 {% endblock %}
 
 {% block content %}
-    <img src="{% static 'img/no-image-png-2.png' %}" id="placeholderImage" style="display: none">
-    <img src="{% static 'img/user-profile-picture01.png' %}" id="avatarImage" style="display: none">
+    <img src="{% static 'img/no-image-png-2.png' %}" id="placeholderImage" class="d-none">
+    <img src="{% static 'img/user-profile-picture01.png' %}" id="avatarImage" class="d-none">
     {% csrf_token %}
     <!-- Page content-->   
-    <div class="container-fluid">
+    <div class="container-fluid p-2">
         <div class="row pt-2">
             <div class="col-sm-7 gx-0">
                 <div class="row">
                     <div class="col-sm-12">
-                        <div class="card h-100">
+                        <div class="card" style="height: 14em;">
                             <div class="card-header h-100">
-                                <button class="floating-button">?</button>
+                                <button class="floating-button btn btn-success rounded-circle m-1" data-dialog-id="dialog1">?</button>
                                 <div class="row">
                                     <div class="col-md-2">
                                         <!-- Space for user profile picture -->
-                                        <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle">
+                                        <img src="{% static 'img/user-profile-picture01.png' %}" class="img-fluid rounded-circle" style="max-height: 12em;">
                                     </div>
                                     <div class="col-md-5">
                                         <form>
@@ -128,7 +55,7 @@
                                     </div>
                                     <div class="col-md-5">
                                         <p class="form-label fw-bold fs-5">Recent Interactions</p>
-                                        <ol id="recentInteractions" class="mt-3 h6 text-nowrap" style="max-height: 160px; overflow-y: auto; margin-left: -25px">
+                                        <ol id="recentInteractions" class="mt-3 h6 text-nowrap" style="max-height: 10em; overflow-y: auto; margin-left: -10px">
                                         </ol>
                                     </div>
                                 </div>
@@ -138,10 +65,11 @@
                 </div>
                 <div class="row py-2">
                     <div class="col-sm-12">
-                        <div class="card h-100">
+                        <div class="card" style="height: 39em;">
+                            <button class="floating-button floating-button btn btn-success rounded-circle m-1" data-dialog-id="dialog3">?</button>
                             <div class="card-header h-100">
                                 <div class="row"> 
-                                    <div class="col-sm-10">
+                                    <div id="cluster-column" class="col-sm-10">
                                         <p class="form-label fw-bold fs-5">User Cluster View</p>
                                         <div id="chart"></div>
                                     </div>
@@ -243,151 +171,119 @@
             <div class="col-sm-5">
                 <div class="row pb-2">
                     <div class="col-sm-12">
-                        <div class="card h-100">
+                        <div class="card" style="height: 35em;">
                             <div class="card-header h-100">
-                                <button class="floating-button">?</button>
-                                <div class="row">
+                                <button class="floating-button floating-button btn btn-success rounded-circle m-1" data-dialog-id="dialog2">?</button>
+                                <div id="movie-row" class="row d-none">
                                     <div class="col-sm-8">
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="row">
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Romance</p>
+                                                    <div class="form-group pe-0">
+                                                        <label for="romance-slider" class="text-nowrap fw-bold">Romance</label>
+                                                        <div id="romance-slider" class="slider my-2">8</div>
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">8</div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="scifi-slider" class="text-nowrap fw-bold">Sci-Fi</label>
+                                                        <div id="scifi-slider" class="slider my-2">28</div>
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Sci-Fi</p>
+                                                    <div class="form-group pe-0">
+                                                        <label for="adventure-slider" class="text-nowrap fw-bold">Adventure</label>
+                                                        <div id="adventure-slider" class="slider my-2">38</div>
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">28</div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="comedy-slider" class="text-nowrap fw-bold">Comedy</label>
+                                                        <div id="comedy-slider" class="slider my-2">78</div>
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Adventure</p>
+                                                    <div class="form-group pe-0">
+                                                        <label for="animation-slider" class="text-nowrap fw-bold">Animation</label>
+                                                        <div id="animation-slider" class="slider my-2">88</div>
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">38</div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="drama-slider" class="text-nowrap fw-bold">Drama</label>
+                                                        <div id="drama-slider" class="slider my-2">100</div>
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Comedy</p>
+                                                    <div class="form-group pe-0">
+                                                        <label for="thriller-slider" class="text-nowrap fw-bold">Thriller</label>
+                                                        <div id="thriller-slider" class="slider my-2">88</div>
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">78</div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="war-slider" class="text-nowrap fw-bold">War</label>
+                                                        <div id="war-slider" class="slider my-2">68</div>
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Animation</p>
+                                                    <div class="form-group pe-0">
+                                                        <label for="children-slider" class="text-nowrap fw-bold">Children</label>
+                                                        <div id="children-slider" class="slider my-2">28</div>
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">88</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Drama</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">100</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Thriller</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">88</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">War</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">68</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Children</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">28</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Crime</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">18</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Horror</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">08</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Film-Noir</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">0</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Mystery</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">25</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Action</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">50</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Musical</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">75</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Western</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">88</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">IMAX</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">75</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Documentary</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">40</div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <p class="m-1 text-nowrap fw-bold">Fantasy</p>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="slider my-2">30</div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="crime-slider" class="text-nowrap fw-bold">Crime</label>
+                                                        <div id="crime-slider" class="slider my-2">18</div>
                                                     </div>
                                                 </div>
-                                            </div>     
-                                        <div class="text-center mt-2">
-                                            <button type="submit" class="btn btn-success me-4" id = "update-button">Update</button>
-                                            <button type="submit" class="btn btn-success" id = "reset-button">Reset</button>
-                                        </div>   
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="row">
+                                                    <div class="form-group pe-0">
+                                                        <label for="horror-slider" class="text-nowrap fw-bold">Horror</label>
+                                                        <div id="horror-slider" class="slider my-2">8</div>
+                                                    </div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="filmnoir-slider" class="text-nowrap fw-bold">Film-Noir</label>
+                                                        <div id="filmnoir-slider" class="slider my-2">0</div>
+                                                    </div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="mystery-slider" class="text-nowrap fw-bold">Mystery</label>
+                                                        <div id="mystery-slider" class="slider my-2">25</div>
+                                                    </div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="action-slider" class="text-nowrap fw-bold">Action</label>
+                                                        <div id="action-slider" class="slider my-2">50</div>
+                                                    </div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="musical-slider" class="text-nowrap fw-bold">Musical</label>
+                                                        <div id="musical-slider" class="slider my-2">75</div>
+                                                    </div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="western-slider" class="text-nowrap fw-bold">Western</label>
+                                                        <div id="western-slider" class="slider my-2">88</div>
+                                                    </div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="imax-slider" class="text-nowrap fw-bold">IMAX</label>
+                                                        <div id="imax-slider" class="slider my-2">75</div>
+                                                    </div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="documentary-slider" class="text-nowrap fw-bold">Documentary</label>
+                                                        <div id="documentary-slider" class="slider my-2">40</div>
+                                                    </div>
+                                                    <div class="form-group pe-0">
+                                                        <label for="fantasy-slider" class="text-nowrap fw-bold">Fantasy</label>
+                                                        <div id="fantasy-slider" class="slider my-2">30</div>
+                                                    </div>
+                                                    <div class="text-center text-nowrap mt-2">
+                                                        <button type="submit" class="btn btn-success ms-0 me-4" id="update-button">Update</button>
+                                                        <button type="submit" class="btn btn-success" id="reset-button">Reset</button>
+                                                    </div>  
+                                                </div>
+                                            </div>
+                                             
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-sm-4 text-center">
-                                    <p class="form-label fw-bold fs-5">Top 10 Movies</p>
-                                    <div id="movies-container" style="max-height: 550px; overflow-y: auto;" class = "img-fluid w-100"></div>
+                                    <div class="col-sm-4 text-center">
+                                        <p class="form-label fw-bold fs-5">Top 10 Movies</p>
+                                        <div id="movies-container" style="max-height: 500px; overflow-y: auto;" class = "img-fluid w-100"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div> 
-            </div>
+                    </div> 
+                </div>
                 <div class="row">
                     <div class="col-sm-12">
-                        <div class="card h-100">
+                        <div class="card" style="height: 18em;">
+                            <button class="floating-button floating-button btn btn-success rounded-circle m-1" data-dialog-id="dialog4">?</button>
                             <div class="card-header h-100">
                                 <p class="form-label fw-bold fs-5">Counterfactual Persona Explorer</p>
-                                <div id="counterfactual-personas" class="row" style="height: 100px; max-height: 100px; overflow-y: auto;"></div>
+                                <div id="counterfactual-personas" class="row" style="height: 14em; max-height: 14em; overflow-y: auto;"></div>
                             </div>
                         </div>
                     </div>

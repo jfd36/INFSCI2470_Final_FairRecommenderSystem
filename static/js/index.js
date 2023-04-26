@@ -58,6 +58,9 @@ $(document).ready(function () {
 				$(this).text("");
 			});
 		});
+		
+		// Prevent pop-in on load
+		$("#movie-row").removeClass('d-none');
 	}
 
 	$('#userId').selectize({
@@ -344,8 +347,10 @@ $(document).ready(function () {
   	function generate_cluster(data) {
 		// Zoomable, Pannable, Hoverable Scatter Plot
 		// Set height/width of plot
-		height = 240;
-		width = 400;
+		// height = 240;
+		// width = 400;
+		height = $("#cluster-column").height()
+		width = $("#cluster-column").width()
 		k = height / width
 
 		$("#chart").empty();
@@ -357,7 +362,7 @@ $(document).ready(function () {
 				.selectAll(".x")
 				.data(x.ticks(12))
 				.join(
-					enter => enter.append("line").attr("class", "x").attr("y2", height),
+					enter => enter.append("line").attr("class", "x").attr("y2", height+10),
 					update => update,
 					exit => exit.remove()
 				)
@@ -367,7 +372,7 @@ $(document).ready(function () {
 				.selectAll(".y")
 				.data(y.ticks(12 * k))
 				.join(
-					enter => enter.append("line").attr("class", "y").attr("x2", width),
+					enter => enter.append("line").attr("class", "y").attr("x2", width+10),
 					update => update,
 					exit => exit.remove()
 				)
@@ -497,5 +502,88 @@ $(document).ready(function () {
 		const chartSvg = chartDiv.append(() => chart());
 
 		return chart;
-	}	
+	}
+
+	// modal dialogue box for user profile section
+	var dialog1 = $('<div></div>')
+		.attr('id', 'dialog1')
+		.html("<ul><li>Choose a user by entering a number between 1-6040 in the text box.</li><li>After choosing a user, you'll see their demographics and most recently rated movies displayed.</li><li>To the right you can see the top 10 recommendations for this user based on their genre preferences.</li><li>Below, you can see which cluster this user is placed in.</li?</ul>")
+		.dialog({
+			autoOpen: false,
+			modal: true,
+			title: 'User Profile Help',
+			width: 500,
+			create: function(event, ui) {
+				$(event.target).parent().find('.ui-dialog-titlebar-close').addClass('btn-danger').addClass('btn').addClass('pt-1');
+			}
+		});
+
+	// modal dialogue box for recommendations section
+	var dialog2 = $('<div></div>')
+		.attr('id', 'dialog2')
+		.html("<ul><li>This is where you can view movie recommendations. Once a user is selected, the slider values will change based on that users preferences</li><li>This user's recommendations based on their genre preferences will be shown to the right of the sliders.</li><li>You can view new recommendations by adjusting the sliders and then clicking update.</li><li>Click the reset button if you want to view the original recommendations and reset the sliders.</li></ul>")
+		.dialog({
+			autoOpen: false,
+			modal: true,
+			title: 'Recommendations Help',
+			width: 500,
+			create: function(event, ui) {
+				$(event.target).parent().find('.ui-dialog-titlebar-close').addClass('btn-danger').addClass('btn').addClass('pt-1');
+			}
+		});
+
+	// modal dialogue box for user cluster view section
+	var dialog3 = $('<div></div>')
+		.attr('id', 'dialog3')
+		.html('<ul><li>This cluster plot is a view of all the users in the database. They are clustered into groups based on their genre ratings.</li> <li>Each cluster has a "representative user" which is shown with a different symbol in the cluster plot. This "representative user" shows what the average user looks like for a given cluster. <li>You can hover over each user to see their demographics.</li><li>You can also filter the plot using the 5 filters provided. You can choose which filters you would like to apply.</li><li> If you see a user and would like to see what they would be recommended, select by clicking on the user in the cluster plot.</li><li>You will see this user added to the Counterfactual Persona Explorer (bottom right section). You can select an unlimited number of users.</li></ul>')
+		.dialog({
+			autoOpen: false,
+			modal: true,
+			title: 'User Cluster View Help',
+			width: 500,
+			create: function(event, ui) {
+				$(event.target).parent().find('.ui-dialog-titlebar-close').addClass('btn-danger').addClass('btn').addClass('pt-1');
+			}
+		});
+
+	// modal dialogue box for counterfactual section
+	var dialog4 = $('<div></div>')
+		.attr('id', 'dialog4')
+		.html('<ul><li>Each user and their demographics selected from the cluster plot are displayed here.</li><li>Hover over a user to see their top movie recommendations.</li></ul>')
+		.dialog({
+			autoOpen: false,
+			modal: true,
+			title: 'Counterfactual Persona Explorer Help',
+			width: 500,
+			create: function(event, ui) {
+				$(event.target).parent().find('.ui-dialog-titlebar-close').addClass('btn-danger').addClass('btn').addClass('pt-1');
+			}
+		});
+
+	// Add a click event listener to each button
+	$('.floating-button').click(function() {
+		const dialogId = $(this).data('dialog-id');
+		$('#' + dialogId).dialog('open');
+	});
+	$('#button1').click(function() {
+		dialog1.dialog('open');
+	});
+
+	$('#button2').click(function() {
+		dialog2.dialog('open');
+	});
+
+	$('#button3').click(function() {
+		dialog3.dialog('open');
+	});
+
+	$('#button4').click(function() {
+		dialog4.dialog('open');
+	});
+
+	// Add a click event listener to the close button of each dialog box
+	$('.ui-dialog-titlebar-close').click(function() {
+		// Close the corresponding dialog box when the close button is clicked
+		$(this).closest('.ui-dialog-content').dialog('close');
+	});
 });
