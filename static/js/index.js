@@ -222,7 +222,7 @@ $(document).ready(function () {
 				csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
 			},
 			success: function (json) {
-				$('#userIdLabel').text($('#userId').val());
+				$('#userIdLabel').text(json.userId);
 				$('#genderLabel').text(json.gender);
 				$('#ageLabel').text(ageRange(json.age));
 				$('#occupationLabel').text(occupations[json.occupation]);
@@ -236,6 +236,16 @@ $(document).ready(function () {
 				for (let rating of json.ratings) {
 					recentInteractions.append('<li>' + rating + '</li>');
 				}
+
+				// Highlight the queried user
+				if (json.cluster_data.length > 1) {
+					cluster_chart = generate_cluster(json.cluster_data);
+				} else {
+					cluster_chart = generate_cluster(cluster_data);
+				}
+
+				// Update movies
+				$("#update-button").click();
 			},
 			error: function (xhr, errmsg, err) {
 				console.log("Error", xhr.status + ": " + xhr.responseText);
@@ -253,6 +263,7 @@ $(document).ready(function () {
 			csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
 		},
 		success: function (data) {
+			cluster_data = data;
 			cluster_chart = generate_cluster(data);
 		},
 		error: function (xhr, errmsg, err) {
@@ -267,7 +278,6 @@ $(document).ready(function () {
 		dataType: "json",
 		data: {
 			call: 'get_movies',
-			// userId: userId, // Some day we'll want to fetch recommendations based on the predictions of some model. Would also need genre ratings, etc.
 			csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
 		},
 		success: function (data) {
@@ -554,7 +564,7 @@ $(document).ready(function () {
 	// modal dialogue box for counterfactual section
 	var dialog4 = $('<div></div>')
 		.attr('id', 'dialog4')
-		.html('<ul><li>Each user and their demographics selected from the cluster plot are displayed here.</li><li>Hover over a user to see their top movie recommendations.</li></ul>')
+		.html('<ul><li>Each user and their demographics selected from the cluster plot are displayed here.</li><li>Click the "Movies" button for a given user to see their top movie recommendations.</li></ul>')
 		.dialog({
 			autoOpen: false,
 			modal: true,
@@ -587,7 +597,6 @@ $(document).ready(function () {
 		var userTitle = $(this).closest(".card-body").find("h5").text();
 		dialogPersona.dialog("option", "title", "Recommended Movies for " + userTitle);
 		let movies = await fetchMovies(userTitle.split()[1]);
-		console.log(movies)
 		let counterfactualMovies = $("<div style='display: flex'></div>");
 		$.each(movies, function (index, movie) {
 			const movieHtml = '<div class="movie text-center mx-2">' +

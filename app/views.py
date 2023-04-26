@@ -58,21 +58,47 @@ def cluster_csv(request):
 
 def fetch_user_info(request):
     userId = request.POST.get('userId')
-    user = Users.objects.get(userId=userId)
+    if userId == "":
+        userId = 1
+    user = Users.objects.get(userId=int(userId))
+    rating_data = []
+    cluster_data = [[0, 0, 0, 0, 0]]
 
-    # Fetch the chronological list of ratings for the user
-    ratings = Rating.objects.filter(userId=user).order_by('-timestamp')
-    
-    # Extract the rating data and store it in a list
-    rating_data = [f'<b>"{rating.movie.title}"</b><br>{rating_to_stars(float(rating.rating))}' for rating in ratings]
+    # If extra is 1, fetch ratings and cluster data. Otherwise, just user info.
+    if request.POST.get('extra') == '1':
+        # Fetch the chronological list of ratings for the user
+        ratings = Rating.objects.filter(userId=user).order_by('-timestamp')
+        
+        # Extract the rating data and store it in a list
+        rating_data = [f'<b>"{rating.movie.title}"</b><br>{rating_to_stars(float(rating.rating))}' for rating in ratings]
+
+        with open('clustering_with_pickle_coordinates_v2.csv', encoding='utf-8') as f:
+            user_found = False
+            csvReader = csv.DictReader(f)
+            for row in csvReader:
+                if row["user_id"] == userId:
+                    user_found = True
+                    cluster = row["cluster"]
+                    cluster_data.append([row["x"], row["y"], 1, row["user_id"], 1])
+
+            if user_found:
+                f.seek(0)  # reset file pointer to the beginning
+                csvReader = csv.DictReader(f)
+                for row in csvReader:
+                    if row["cluster"] == cluster and row["user_id"] != userId:
+                        cluster_data.append([row["x"], row["y"], 1, row["user_id"], 0])
+                    else:
+                        cluster_data.append([row["x"], row["y"], 0, row["user_id"], 0])
     
     data = {
+        'userId': userId,
         'gender': user.gender,
         'age': user.age,
         'occupation': user.occupation,
         'zipCode': user.zipCode,
         'genreRatings': user.genreRatings,
-        'ratings': rating_data
+        'ratings': rating_data,
+        'cluster_data': cluster_data
     }
 
     return HttpResponse(
