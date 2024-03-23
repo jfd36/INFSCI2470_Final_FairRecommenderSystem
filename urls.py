@@ -21,6 +21,7 @@ from app import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index.as_view(), name='index'),
+    path('take2', views.take2.as_view(), name='take2'),
     path('example/', views.example.as_view(), name='example'),
 
     # Ajax

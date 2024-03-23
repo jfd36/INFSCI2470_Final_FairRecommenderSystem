@@ -1,0 +1,107 @@
+<form class="text-center">
+  <div class="mb-2">
+    <label for="age" class="form-label fw-bold fs-5">Age:</label>
+    <br />
+    <select id="age" class="form-control text-center" type="text" name="age">
+      <option value="">None</option>
+      <option value="1">Under 18</option>
+      <option value="18">18-24</option>
+      <option value="25">25-34</option>
+      <option value="35">35-44</option>
+      <option value="45">45-59</option>
+      <option value="50">50-55</option>
+      <option value="56">56+</option>
+    </select>
+    <br />
+    <label for="gender" class="form-label fw-bold fs-5">Gender:</label>
+    <br />
+    <select
+      id="gender"
+      class="form-control text-center"
+      type="text"
+      name="gender"
+    >
+      <option value="">None</option>
+      <option value="M">Male</option>
+      <option value="F">Female</option>
+    </select>
+    <br />
+    <label for="location" class="form-label fw-bold fs-5">Location:</label>
+    <br />
+    <select
+      id="location"
+      class="form-control text-center"
+      type="text"
+      name="location"
+    >
+      <option value="">None</option>
+      {% for zipcode in zipcodes %}
+      <option value="{{ zipcode }}">{{ zipcode }}</option>
+      {% endfor %}
+    </select>
+    <br />
+    <label for="occupation" class="form-label fw-bold fs-5">Occupation:</label>
+    <br />
+    <select
+      id="occupation"
+      class="form-control text-center"
+      type="text"
+      name="occupation"
+    >
+      <option value="">None</option>
+      <option value="0">Other or Unspecified</option>
+      <option value="1">Academic/Educator</option>
+      <option value="2">Artist</option>
+      <option value="3">Clerical/Admin</option>
+      <option value="4">College/Grad Student</option>
+      <option value="5">Customer Service</option>
+      <option value="6">Doctor/Health Care</option>
+      <option value="7">Executive/Managerial</option>
+      <option value="8">Farmer</option>
+      <option value="9">Homemaker</option>
+      <option value="10">K-12 Student</option>
+      <option value="11">Lawyer</option>
+      <option value="12">Programmer</option>
+      <option value="13">Retired</option>
+      <option value="14">Sales/Marketing</option>
+      <option value="15">Scientist</option>
+      <option value="16">Self-Employed</option>
+      <option value="17">Technician/Engineer</option>
+      <option value="18">Tradesman/Craftsman</option>
+      <option value="19">Unemployed</option>
+      <option value="20">Writer</option>
+    </select>
+    <br />
+    <label for="top-genre" class="form-label fw-bold fs-5">Top Genre:</label>
+    <br />
+    <select
+      id="top-genre"
+      class="form-control text-center"
+      type="text"
+      name="top-genre"
+    >
+      <option value="">None</option>
+      <option value="action">Action</option>
+      <option value="adventure">Adventure</option>
+      <option value="animation">Animation</option>
+      <option value="children">Children's</option>
+      <option value="comedy">Comedy</option>
+      <option value="crime">Crime</option>
+      <option value="documentary">Documentary</option>
+      <option value="drama">Drama</option>
+      <option value="fantasy">Fantasy</option>
+      <option value="film-noir">Film-Noir</option>
+      <option value="horror">Horror</option>
+      <option value="imax">IMAX</option>
+      <option value="musical">Musical</option>
+      <option value="mystery">Mystery</option>
+      <option value="romance">Romance</option>
+      <option value="sci-fi">Sci-Fi</option>
+      <option value="thriller">Thriller</option>
+      <option value="war">War</option>
+      <option value="western">Western</option>
+    </select>
+  </div>
+  <br />
+  <button id="search" class="btn btn-success mb-2">Search</button>
+</form>

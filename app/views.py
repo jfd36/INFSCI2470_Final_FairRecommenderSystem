@@ -25,6 +25,20 @@ class index(TemplateView):
         context['userIds'] = userids
 
         return context
+    
+class take2(TemplateView):
+    template_name = "take2.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        zipcodes = sorted([user.zipCode for user in Users.objects.distinct('zipCode')])
+        userids = list(Users.objects.values_list('userId', flat=True).order_by('userId'))
+
+        context['zipcodes'] = zipcodes
+        context['userIds'] = userids
+
+        return context
 
 class example(TemplateView):
     template_name = "example.html"
@@ -45,7 +59,7 @@ def rating_to_stars(rating):
 def cluster_csv(request):
     data = []
 
-    with open('clustering_with_pickle_coordinates_v2.csv', encoding='utf-8') as f:
+    with open('clustering_with_bpr_pickle_coordinates.csv', encoding='utf-8') as f:
         csvReader = csv.DictReader(f)
 
         for row in csvReader:
@@ -66,13 +80,14 @@ def fetch_user_info(request):
 
     # If extra is 1, fetch ratings and cluster data. Otherwise, just user info.
     if request.POST.get('extra') == '1':
+        print("EXTRA!")
         # Fetch the chronological list of ratings for the user
         ratings = Rating.objects.filter(userId=user).order_by('-timestamp')
         
         # Extract the rating data and store it in a list
         rating_data = [f'<b>"{rating.movie.title}"</b><br>{rating_to_stars(float(rating.rating))}' for rating in ratings]
 
-        with open('clustering_with_pickle_coordinates_v2.csv', encoding='utf-8') as f:
+        with open('clustering_with_bpr_pickle_coordinates.csv', encoding='utf-8') as f:
             user_found = False
             csvReader = csv.DictReader(f)
             for row in csvReader:
@@ -128,7 +143,7 @@ def search_users(request):
 
     users = Users.objects.filter(query).values_list('userId', flat=True)
 
-    with open('clustering_with_pickle_coordinates_v2.csv', encoding='utf-8') as f:
+    with open('clustering_with_bpr_pickle_coordinates.csv', encoding='utf-8') as f:
         csvReader = csv.DictReader(f)
 
         if not age and not gender and not location and not occupation and not top_genre:

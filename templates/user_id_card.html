@@ -1,0 +1,49 @@
+{% load static %}
+
+<div class="row">
+  <div class="col-md-2">
+    <!-- Space for user profile picture -->
+    <img
+      src="{% static 'img/user-profile-picture01.png' %}"
+      class="img-fluid rounded-circle"
+      style="max-height: 12em"
+    />
+  </div>
+  <div class="col-md-5">
+    <form>
+      <div class="mb-2">
+        <label for="userId" class="form-label fw-bold fs-5">User Profile</label>
+        <select id="userId" class="form-control" type="text">
+          <option value="" selected disabled>Enter ID between 1 - 6040</option>
+          {% for userId in userIds %}
+          <option value="{{ userId }}">{{ userId }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </form>
+    <div>
+      <p>
+        <b>User: </b><span id="userIdLabel"></span> <br /><b>Gender: </b
+        ><span id="genderLabel"></span> <br /><b>Age Range: </b
+        ><span id="ageLabel"></span> <br /><b>Occupation: </b
+        ><span id="occupationLabel"></span> <br /><b>Location: </b
+        ><span id="locationLabel"></span>
+      </p>
+    </div>
+  </div>
+  <div class="col-md-5">
+    <p class="form-label fw-bold fs-5">User Options</p>
+    <button class="btn btn-success float-end my-1" id="fetchUser">
+      Show Reviews
+    </button>
+    <button class="btn btn-success float-end my-1" id="fetchUser">
+      See Recommended Movies
+    </button>
+    <button class="btn btn-success float-end my-1" id="fetchUser">
+      Adjust Demographics
+    </button>
+    <button class="btn btn-success float-end my-1" id="fetchUser">
+      Adjust Preferences
+    </button>
+  </div>
+</div>
