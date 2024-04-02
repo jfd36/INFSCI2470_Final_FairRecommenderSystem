@@ -175,12 +175,89 @@ def get_movies(request):
         content_type='application/json'
     )
 
+def find_nearest_neighbors(request):
+    userId = request.POST.get('userId')
+    n = int(request.POST.get('n', 0))
+    users = {}
+    target_user = None
+
+    with open('clustering_with_bpr_pickle_coordinates.csv', encoding='utf-8') as f:
+        csv_reader = csv.DictReader(f)
+        for row in csv_reader:
+            n_userId = row['user_id']
+            x = float(row['x'])
+            y = float(row['y'])
+            users[n_userId] = (x, y)
+            if n_userId == userId:
+                target_user = (x, y)
+
+    if not target_user:
+        return JsonResponse({'error': 'User ID not found'}, status=404)
+
+    distances = []
+    for n_userId, coordinates in users.items():
+        if n_userId != userId:
+            distance = ((target_user[0] - coordinates[0])**2 + (target_user[1] - coordinates[1])**2)**0.5
+            distances.append((n_userId, distance))
+
+    distances.sort(key=lambda x: x[1])
+    nearest_neighbors = [user_id for user_id, _ in distances[:n]] 
+
+    return JsonResponse({'userId': userId, 'neighbors': nearest_neighbors})
+
+def fetch_group_info(request):
+    user_ids = request.POST.getlist('userIds[]')
+    user_ids = [int(uid) for uid in user_ids]
+    summary_counts = {
+        'gender': {},
+        'age': {},
+        'occupation': {},
+        'zipCode': {},
+    }
+
+    cumulative_genre_ratings = [0] * 19  # Initialize with 0s for 19 genres, can be removed when the genreRatings are fixed to have 19 for every user!
+    num_users = len(user_ids)
+
+    users = Users.objects.filter(userId__in=user_ids)
+
+    for user in users:
+        data = {
+            'gender': user.gender,
+            'age': user.age,
+            'occupation': user.occupation,
+            'zipCode': user.zipCode,
+        }
+
+        for attribute, value in data.items():
+            if attribute == 'gender':
+                value = 'female' if value == 'F' else 'male' if value == 'M' else 'other'
+
+            summary_counts.setdefault(attribute, {})
+            summary_counts[attribute][value] = summary_counts[attribute].get(value, 0) + 1
+
+        genre_ratings = list(map(int, user.genreRatings.split('|')))
+        print(genre_ratings)
+        
+        genre_ratings += [0] * (19 - len(genre_ratings))
+        
+        cumulative_genre_ratings = [sum(x) for x in zip(cumulative_genre_ratings, genre_ratings)]
+    
+    average_genre_ratings = [total / num_users for total in cumulative_genre_ratings]
+    summary_counts['genreRatings'] = average_genre_ratings
+    print(summary_counts)
+
+    return JsonResponse({'group_info': summary_counts})
+
+
+
 # Helper objects and functions for AJAX functionality
 switch = {
     'cluster_csv': {'call': cluster_csv},
     'fetch_user_info': {'call': fetch_user_info},
     'search_users': {'call': search_users},
-    'get_movies': {'call': get_movies}
+    'get_movies': {'call': get_movies},
+    'find_nearest_neighbors': {'call': find_nearest_neighbors},
+    'fetch_group_info': {'call': fetch_group_info}
 }
 
 def ajax(request):
@@ -215,5 +292,7 @@ def ajax(request):
 
         # execute the function
         return procedure(request)
-    
+
+
+
 

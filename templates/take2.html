@@ -13,6 +13,8 @@
 {% endblock %}
 
 {% block content %}
+    <button id="myButton">Click here to test n-nearest!</button>
+    <button id="myButt">Click here to test user info!</button>
     <img src="{% static 'img/no-image-png-2.png' %}" id="placeholderImage" class="d-none">
     <img src="{% static 'img/user-profile-picture01.png' %}" id="avatarImage" class="d-none">
     {% csrf_token %}

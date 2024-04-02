@@ -737,4 +737,45 @@ $(document).ready(function () {
     // Close the corresponding dialog box when the close button is clicked
     $(this).closest(".ui-dialog-content").dialog("close");
   });
+
+  $("#myButton").click(function() {
+    $.ajax({
+      url: "/ajax/",
+      type: "POST",
+      dataType: "json",
+      data: {
+        call: "find_nearest_neighbors",
+        userId: 5,
+        n: 10,
+        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+      },
+      success: function (json) {
+        console.log(json);
+      },
+      error: function (xhr, errmsg, err) {
+        console.log(xhr.status + ": " + xhr.responseText);
+      },
+    });
+  });
+
+  $("#myButt").click(function() {
+    $.ajax({
+      url: "/ajax/",
+      type: "POST",
+      dataType: "json",
+      data: {
+        call: "fetch_group_info",
+        userIds: [1,2,3,4,5,6,7,8,9,10],
+        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+      },
+      success: function (json) {
+        console.log(json);
+      },
+      error: function (xhr, errmsg, err) {
+        console.log(xhr.status + ": " + xhr.responseText);
+      },
+    });
+  });
 });
+
+
